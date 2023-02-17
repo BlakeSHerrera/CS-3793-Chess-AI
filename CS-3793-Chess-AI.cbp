@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="CS-3793-Chess-AI" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/CS-3793-Chess-AI" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/CS-3793-Chess-AI" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="bitboard.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="bitboard.h" />
+		<Unit filename="debug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="debug.h" />
+		<Unit filename="error.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="move.h" />
+		<Unit filename="movegen.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="movegen.h" />
+		<Unit filename="piece.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="position.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="position.h" />
+		<Unit filename="square.h" />
+		<Unit filename="uci.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="uci.h" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

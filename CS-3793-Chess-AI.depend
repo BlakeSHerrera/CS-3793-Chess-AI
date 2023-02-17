@@ -1,0 +1,86 @@
+# depslib dependency file v1.0
+1676614388 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\bitboard.c
+	"bitboard.h"
+	"piece.h"
+
+1676495583 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\error.c
+	"error.h"
+	<errno.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1676614391 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.c
+	"bitboard.h"
+	"debug.h"
+	"move.h"
+	"movegen.h"
+	"piece.h"
+	"position.h"
+	"square.h"
+	"uci.h"
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+
+1676498299 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.h
+
+1676614391 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\main.c
+	"bitboard.h"
+	"debug.h"
+	"move.h"
+	"movegen.h"
+	"piece.h"
+	"position.h"
+	"square.h"
+	"uci.h"
+	<stdio.h>
+
+1676614391 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\movegen.c
+	"movegen.h"
+	"square.h"
+	"bitboard.h"
+
+1676612669 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\movegen.h
+	"move.h"
+	"bitboard.h"
+	"square.h"
+
+1676614165 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\move.h
+	"square.h"
+	"piece.h"
+
+1676613469 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\square.h
+
+1676613596 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\piece.h
+
+1676613438 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\bitboard.h
+	"piece.h"
+	<stdint.h>
+
+1676616332 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.c
+	"position.h"
+	"piece.h"
+	"bitboard.h"
+	<stdlib.h>
+	<string.h>
+
+1676610532 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.h
+	"bitboard.h"
+	"piece.h"
+
+1676614391 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\debug.c
+	"bitboard.h"
+	"debug.h"
+	"move.h"
+	"movegen.h"
+	"piece.h"
+	"position.h"
+	"square.h"
+	"uci.h"
+	<stdio.h>
+	<stdlib.h>
+
+1676611668 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\debug.h
+	"bitboard.h"
+
