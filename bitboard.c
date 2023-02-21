@@ -13,27 +13,28 @@ bitmask FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H,
         RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8,
         LIGHT_SQUARES, DARK_SQUARES, ALL_SQUARES, NO_SQUARES, EDGES,
         FILES[8], RANKS[8], SQUARES[64],
-        TOP_RANKS[8], BOTTOM_RANKS[8], LEFT_FILES[8], RIGHT_FILES[8];
+        TOP_RANKS[9], BOTTOM_RANKS[9], LEFT_FILES[9], RIGHT_FILES[9];
 
 void bitboardInit() {
-    int i;
+    int i, j;
 
     // Calculate ranks, files, and squares
     for(i=0; i<8; i++) {
         FILES[i] = 0x0101010101010101ULL << i;
         RANKS[i] = 0x00000000000000FFULL << 8 * i;
+    }
 
+    for(i=0; i<9; i++) {
         TOP_RANKS[i] = NO_SQUARES;
         BOTTOM_RANKS[i] = NO_SQUARES;
         LEFT_FILES[i] = NO_SQUARES;
         RIGHT_FILES[i] = NO_SQUARES;
-    }
-
-    for(i=0; i<8; i++) {
-        TOP_RANKS[i] |= RANKS[7 - i];
-        BOTTOM_RANKS[i] |= RANKS[i];
-        LEFT_FILES[i] |= FILES[i];
-        RIGHT_FILES[i] |= FILES[7 - i];
+        for(j=0; j<i; j++) {
+            TOP_RANKS[i] |= RANKS[7 - j];
+            BOTTOM_RANKS[i] |= RANKS[j];
+            LEFT_FILES[i] |= FILES[j];
+            RIGHT_FILES[i] |= FILES[7 - j];
+        }
     }
 
     for(i=0; i<64; i++) {
@@ -60,17 +61,17 @@ void bitboardInit() {
 
     NO_SQUARES = 0ULL;
     ALL_SQUARES = ~NO_SQUARES;
-    DARK_SQUARES = 0x55AAAA5555AAAA55ULL;
+    DARK_SQUARES = 0xAA55AA55AA55AA55ULL;
     LIGHT_SQUARES = ~DARK_SQUARES;
     EDGES = FILE_A | FILE_H | RANK_1 | RANK_8;
 }
 
 bitmask shiftLeft(bitmask bm, int n) {
-    return (bm & ~LEFT_FILES[n]) << 1;
+    return (bm & ~LEFT_FILES[n]) >> n;
 }
 
 bitmask shiftRight(bitmask bm, int n) {
-    return (bm & ~RIGHT_FILES[n]) >> 1;
+    return (bm & ~RIGHT_FILES[n]) << n;
 }
 
 bitmask shiftUp(bitmask bm, int n) {

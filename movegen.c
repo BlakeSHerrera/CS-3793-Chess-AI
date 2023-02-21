@@ -9,22 +9,27 @@
 #include "movegen.h"
 #include "square.h"
 #include "bitboard.h"
+#include "debug.h"
+#include "magic.h"
+
+#include <stdlib.h>
 
 bitmask RAYS[8][64],
         BISHOP_RELEVANT_OCCUPANCY[NUM_SQUARES],
         ROOK_RELEVANT_OCCUPANCY[NUM_SQUARES],
-        BISHOP_MAGIC[MAGIC_BISHOP_NUMBER],
-        ROOK_MAGIC[MAGIC_ROOK_NUMBER];
+        BISHOP_TABLE[64][1 << 9],
+        ROOK_TABLE[64][1 << 12];
 
 int BISHOP_BITS[NUM_SQUARES];
 
 void movegenInit() {
-    int i, j, k, pos;
+    int i, j, k;
+    bitmask pos;
 
     // Calculate ray casts
     for(i=0; i<8; i++) { // direction
         for(j=0; j<64; j++) { // square
-            RAYS[i][j] = 0;
+            RAYS[i][j] = 0ULL;
             for(k=1; k<8; k++) { // shifts
                 pos = SQUARES[j];
                 if(i == NORTH || i == NORTHEAST || i == NORTHWEST)
@@ -53,15 +58,14 @@ void movegenInit() {
             RAYS[SOUTHEAST][i] |
             RAYS[NORTHEAST][i]);
         BISHOP_BITS[i] = _sumBits(BISHOP_RELEVANT_OCCUPANCY[i]);
-
         // Calculate magic bitboards
-        _initMagicRook(ROOK_RELEVANT_OCCUPANCY[i], 0);
-        _initMagicBishop(BISHOP_RELEVANT_OCCUPANCY[i], 0, BISHOP_BITS[i]);
+        //_initMagicRook(ROOK_RELEVANT_OCCUPANCY[i], 0, 0);
+        //_initMagicBishop(BISHOP_RELEVANT_OCCUPANCY[i], 0, 0, BISHOP_BITS[i]);
     }
 }
 
-void _initMagicRook(bitmask bm, int i) {
-    ROOK_MAGIC[bm * MAGIC_NUMBER >> 54] = _calculateRookMoves(i, bm);
+void _initMagicRook(bitmask bm, Square i) {
+    ROOK_TABLE[i][ROOK_MAGIC_NUMS[i] * bm >> 52] = _calculateRookMoves(i, bm);
     for(; i<NUM_SQUARES; i++) {
         if(bm & SQUARES[i]) {
             _initMagicRook(bm & ~SQUARES[i], i + 1);
@@ -69,8 +73,8 @@ void _initMagicRook(bitmask bm, int i) {
     }
 }
 
-void _initMagicBishop(bitmask bm, int i, int bits) {
-    BISHOP_MAGIC[bm * MAGIC_NUMBER >> (64 - bits)] = _calculateBishopMoves(i, bm);
+void _initMagicBishop(bitmask bm, Square i, int bits) {
+    BISHOP_TABLE[i][BISHOP_MAGIC_NUMS[i] * bm >> (64 - bits)] = _calculateBishopMoves(i, bm);
     for(; i<NUM_SQUARES; i++) {
         if(bm & SQUARES[i]) {
             _initMagicBishop(bm & ~SQUARES[i], i + 1, bits);
@@ -78,7 +82,7 @@ void _initMagicBishop(bitmask bm, int i, int bits) {
     }
 }
 
-bitmask _calculateRookMoves(int square, bitmask blockers) {
+bitmask _calculateRookMoves(Square square, bitmask blockers) {
     int row, col, r, c, i;
     bitmask attacks = NO_SQUARES;
     row = square / 8;
@@ -111,7 +115,7 @@ bitmask _calculateRookMoves(int square, bitmask blockers) {
     return attacks;
 }
 
-bitmask _calculateBishopMoves(int square, bitmask blockers) {
+bitmask _calculateBishopMoves(Square square, bitmask blockers) {
     int row, col, r, c, i;
     bitmask attacks = NO_SQUARES;
     row = square / 8;
@@ -153,3 +157,14 @@ int _sumBits(bitmask bm) {
     for(i=0; bm; i+=bm&1, bm>>=1);
     return i;
 }
+
+Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
+    int i;
+    Move *moves = malloc(sizeof(Move) * MAX_MOVES);
+
+    // Rook moves
+
+    // TODO
+    return moves;
+}
+

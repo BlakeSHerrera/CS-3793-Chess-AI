@@ -12,6 +12,7 @@
 #include "position.h"
 #include "square.h"
 #include "uci.h"
+#include "magic.h"
 
 #include <stdio.h>
 
@@ -19,5 +20,6 @@ int main(int argc, char **argv) {
     bitboardInit();
     movegenInit();
     uciCommunicate();
+
     return 0;
 }

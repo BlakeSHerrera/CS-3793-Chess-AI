@@ -35,7 +35,7 @@
  * Bits 19-31: Full move counter (can hold theoretical max no. of moves)
  */
 typedef struct GameState {
-    bitmask bb[12];
+    bitmask bb[NUM_PIECES + 1]; // Last index for blockers
     struct GameState *prev;
     int fenInfo;
 } GameState;

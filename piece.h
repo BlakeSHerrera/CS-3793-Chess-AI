@@ -24,6 +24,8 @@
 #define B_QUEEN 10
 #define B_KING 11
 
+#define BLOCKERS 12
+
 #define PIECE_STR "PNBRQKpnbrkq"
 
 typedef signed char Piece;

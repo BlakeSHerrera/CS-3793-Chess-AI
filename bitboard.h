@@ -37,7 +37,7 @@ extern bitmask FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H,
                RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8,
                LIGHT_SQUARES, DARK_SQUARES, ALL_SQUARES, NO_SQUARES, EDGES,
                FILES[8], RANKS[8], SQUARES[64],
-               TOP_RANKS[8], BOTTOM_RANKS[8], LEFT_FILES[8], RIGHT_FILES[8];
+               TOP_RANKS[9], BOTTOM_RANKS[9], LEFT_FILES[9], RIGHT_FILES[9];
 
 /**
  * The initializer function should be called once on program start to

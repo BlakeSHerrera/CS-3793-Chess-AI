@@ -39,9 +39,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="debug.h" />
-		<Unit filename="error.c">
+		<Unit filename="magic.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="magic.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
