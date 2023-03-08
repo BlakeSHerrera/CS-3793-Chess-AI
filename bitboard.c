@@ -8,15 +8,25 @@
 
 #include "bitboard.h"
 #include "piece.h"
+#include "square.h"
+#include "magic.h"
 
 bitmask FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H,
         RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8,
         LIGHT_SQUARES, DARK_SQUARES, ALL_SQUARES, NO_SQUARES, EDGES,
         FILES[8], RANKS[8], SQUARES[64],
-        TOP_RANKS[9], BOTTOM_RANKS[9], LEFT_FILES[9], RIGHT_FILES[9];
+        TOP_RANKS[9], BOTTOM_RANKS[9], LEFT_FILES[9], RIGHT_FILES[9],
+        W_CASTLE_K, W_CASTLE_Q, B_CASTLE_K, B_CASTLE_Q,
+        RAYS[8][NUM_SQUARES];
 
 void bitboardInit() {
-    int i, j;
+    int i, j, k;
+    bitmask pos;
+
+    NO_SQUARES = 0ULL;
+    ALL_SQUARES = ~NO_SQUARES;
+    DARK_SQUARES = 0xAA55AA55AA55AA55ULL;
+    LIGHT_SQUARES = ~DARK_SQUARES;
 
     // Calculate ranks, files, and squares
     for(i=0; i<8; i++) {
@@ -59,11 +69,35 @@ void bitboardInit() {
     RANK_7 = RANKS[6];
     RANK_8 = RANKS[7];
 
-    NO_SQUARES = 0ULL;
-    ALL_SQUARES = ~NO_SQUARES;
-    DARK_SQUARES = 0xAA55AA55AA55AA55ULL;
-    LIGHT_SQUARES = ~DARK_SQUARES;
     EDGES = FILE_A | FILE_H | RANK_1 | RANK_8;
+
+    W_CASTLE_K = SQUARES[F1] | SQUARES[G1];
+    W_CASTLE_Q = SQUARES[B1] | SQUARES[C1] | SQUARES[D1];
+    B_CASTLE_K = SQUARES[F8] | SQUARES[G8];
+    B_CASTLE_Q = SQUARES[B8] | SQUARES[C8] | SQUARES[D8];
+
+    // Calculate ray casts
+    for(i=0; i<8; i++) { // direction
+        for(j=0; j<64; j++) { // square
+            RAYS[i][j] = 0ULL;
+            for(k=1; k<8; k++) { // shifts
+                pos = SQUARES[j];
+                if(i == NORTH || i == NORTHEAST || i == NORTHWEST) {
+                    pos = shiftUp(pos, k);
+                }
+                if(i == WEST || i == NORTHWEST || i == SOUTHWEST) {
+                    pos = shiftLeft(pos, k);
+                }
+                if(i == SOUTH || i == SOUTHWEST || i == SOUTHEAST) {
+                    pos = shiftDown(pos, k);
+                }
+                if(i == EAST || i == SOUTHEAST || i == NORTHEAST) {
+                    pos = shiftRight(pos, k);
+                }
+                RAYS[i][j] |= pos;
+            }
+        }
+    }
 }
 
 bitmask shiftLeft(bitmask bm, int n) {
@@ -89,4 +123,10 @@ bitmask getBlockers(bitmask *bb) {
         blockers |= bb[i];
     }
     return blockers;
+}
+
+int sumBits(bitmask bm) {
+    int i;
+    for(i=0; bm; i++, bm &= ~(1ULL << (LSB(bm) - 1)));
+    return i;
 }

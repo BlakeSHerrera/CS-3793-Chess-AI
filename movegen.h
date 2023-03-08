@@ -22,15 +22,16 @@
  * See the link at the top of the file for an explanation of
  * how magic bitboards work.
  */
-extern bitmask RAYS[8][64],
-               BISHOP_RELEVANT_OCCUPANCY[NUM_SQUARES],
+extern bitmask BISHOP_RELEVANT_OCCUPANCY[NUM_SQUARES],
                ROOK_RELEVANT_OCCUPANCY[NUM_SQUARES],
                BISHOP_TABLE[NUM_SQUARES][1 << 9],
-               ROOK_TABLE[NUM_SQUARES][1 << 12];
+               ROOK_TABLE[NUM_SQUARES][1 << 12],
+               KNIGHT_TABLE[NUM_SQUARES],
+               KING_TABLE[NUM_SQUARES],  // attacks only
+               PAWN_TABLE[2][NUM_SQUARES];  // attacks only
 
-extern int BISHOP_BITS[NUM_SQUARES];
-
-extern bitmask ROOK_TABLE[64][1 << 12]; // 12 possible rook blockers
+extern int ROOK_BITS[NUM_SQUARES],
+           BISHOP_BITS[NUM_SQUARES];
 
 /**
  * This function should be called on program start to initialize
@@ -44,23 +45,22 @@ void movegenInit();
  * This function recursively computes all possible blockers for any
  * bitmask of relevant occupied squares (masked blockers) for a rook,
  * and stores it in the magic table.
+ * @param rookSquare - The current square of the rook.
  * @param bm - The bitmask of relevant occupied squares.
- * @param i - The current square index. (The first call to the function
- * should initialize this to 0.)
+ * @param i - The current square index. (Initially 0)
  */
-void _initMagicRook(bitmask bm, Square i);
+void _initMagicRook(Square rookSquare, bitmask bm, int i);
 
 /**
  * Private function.
  * This function recursively computes all possible blockers for any
  * bitmask of relevant occupied squares (masked blockers) for a bishop,
  * and stores it in the magic table.
+ * @param bishopSquare - The current square of the bishop.
  * @param bm - The bitmask of relevant occupied squares.
- * @param i - The current square index. (The first call to the function
- * should initialize this to 0.)
- * @param bits - The number of relevant occupied squares.
+ * @param i - The current square index. (Initially 0)
  */
-void _initMagicBishop(bitmask bm, Square i, int bits);
+void _initMagicBishop(Square bishopSquare, bitmask bm, Square i);
 
 /**
  * Private function.
@@ -83,14 +83,6 @@ bitmask _calculateRookMoves(Square square, bitmask blockers);
 bitmask _calculateBishopMoves(Square square, bitmask blockers);
 
 /**
- * Private function.
- * This function counts the 1s in a bitmask.
- * @param bm - The bitmask to sum the bits of.
- * @return The count of 1s in the bitmask.
- */
-int _sumBits(bitmask bm);
-
-/**
  * This function generates psdeudo-legal moves from a given position.
  * That is, the moves obey the rules for move generation, but are not
  * checked for legality (if the king is in check).
@@ -99,5 +91,32 @@ int _sumBits(bitmask bm);
  * @return A pointer to a dynamically allocated array of moves.
  */
 Move *generatePseudoLegalMoves(GameState *state, int *numMoves);
+
+/**
+ * This function generates legal moves from a given position.
+ * @param state - Pointer to the current state.
+ * @param numMoves - Output variable for the number of moves generated.
+ * @return A pointer to a dynamically allocated array of moves.
+ */
+Move *generateLegalMoves(GameState *state, int *numMoves);
+
+/**
+ * This function generates legal states from a given position.
+ * More efficient than generating legal moves and subsequently
+ * pushing the moves onto the board.
+ * @param state - Pointer to the current state.
+ * @param numStates - Output variable for the number of states generated.
+ * @return A pointer to a dynamically allocated array of game states.
+ */
+GameState *generateLegalStates(GameState *state, int *numStates); //TODO
+
+/**
+ * This function plays a move on a game state, and returns the new state.
+ * The move is not checked for legality.
+ * @param state - A pointer to the current state.
+ * @param m - The move to play.
+ * @return A new state with the move played.
+ */
+GameState pushMove(GameState *state, Move m); //TODO
 
 #endif // MOVEGEN_H_INCLUDED

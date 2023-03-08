@@ -1,5 +1,6 @@
 /**
- * piece.h enumerates the types of pieces.
+ * piece.h enumerates the types of pieces and has functionality
+ * for converting to and from strings.
  * @author Blake Herrera
  * @date 2023-02-15
  */
@@ -26,8 +27,10 @@
 
 #define BLOCKERS 12
 
-#define PIECE_STR "PNBRQKpnbrkq"
+#define PIECE_STR "PNBRQKpnbrqk"
 
-typedef signed char Piece;
+typedef char Piece;
+
+extern Piece CHAR_TO_PIECE[128];
 
 #endif // PIECE_H_INCLUDED

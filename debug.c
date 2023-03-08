@@ -48,7 +48,7 @@ const unsigned long long int PERFT[9][10] = {
 };
 
 const char *PERFT2_FEN =
-    "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
+    "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
 const unsigned long long int PERFT2[9][7] = {
     {1, 48, 2039, 97862, 4085603, 193690690, 8031647685ULL},
     {0, 8, 351, 17102, 757163, 35043416, 1558445096},
@@ -103,6 +103,10 @@ const unsigned long long int PERFT6[1][10] = {
     287188994746ULL, 11923589843526ULL, 490154852788714ULL}
 }; // Only nodes are calculated
 
+/* ********************************************************
+ * Helper functions                                       *
+ **********************************************************/
+
 void printBitmask(bitmask bm) {
     int i, j;
     for(i=7; i>=0; i--) {
@@ -121,7 +125,7 @@ void printBitboard(bitmask *bb) {
         for(j=0; j<8; j++) {
             found = 0;
             for(k=0; k<NUM_PIECES; k++) {
-                if(bb[k] & 1 << (8 * i + j)) {
+                if(bb[k] & 1ULL << (8 * i + j)) {
                     printf("%c", PIECE_STR[k]);
                     found = 1;
                 }
@@ -136,8 +140,44 @@ void printBitboard(bitmask *bb) {
     printf("\n");
 }
 
+void printGameState(GameState state) {
+    printf("Turn, Castling (qkQK), EP, Half-move, Full-move\n"
+           "%d, %d%d%d%d, %d, %d, %d\n",
+           getTurn(state), !!bCanCastleQ(state),
+           !!bCanCastleK(state), !!wCanCastleQ(state),
+           !!wCanCastleK(state), hasEPTarget(state) ? getEPTarget(state) : -1,
+           getHalfMoveCounter(state), getFullMoveCounter(state));
+    printBitboard(state.bb);
+}
+
+void printMove(Move m) {
+    char szLAN[6];
+    toLAN(m, szLAN);
+    printf("%s ep:%d castle:%d\n", szLAN, isEP(m), isCastling(m));
+}
+
+void printMoveVerbose(GameState state, Move m) {
+    // eg, Pb7xra8=Q, Kf1- g1 0-0, Pe5xpd6 ep
+    printf("%c%s%c%c%s%s%c%s%s\n",
+           PIECE_STR[getMovedPiece(m)],
+           SQUARE_TO_STR[getSource(m)],
+           getCapturedPiece(m) != NUM_PIECES ? 'x' : '-',
+           getCapturedPiece(m) != NUM_PIECES ? PIECE_STR[getCapturedPiece(m)] : ' ',
+           SQUARE_TO_STR[getDestination(m)],
+           isPromotion(m) ? "=" : "",
+           isPromotion(m) ? PIECE_STR[getPromotionPiece(m)] : ' ',
+           isCastling(m) ? (getRank(getDestination(m)) == 2 ? "0-0-0" : "0-0") : "",
+           isEP(m) ? "ep" : "");
+}
+
+
+
+/* ********************************************************
+ * bitboard tests                                         *
+ **********************************************************/
+
 void testBitmasks() {
-    int i;
+    int i, j;
     #define loop(n, x) for(i=0; i<(n); i++) printBitmask((x)[i])
     printf("Testing bitboard init...\n");
 
@@ -180,7 +220,7 @@ void testBitmasks() {
     loop(9, TOP_RANKS);
 
     printf("\nSquares a1-h8:\n");
-    loop(64, SQUARES);
+    loop(NUM_SQUARES, SQUARES);
 
     printf("\nSets of Squares\n");
     printf("Dark Squares\n");
@@ -194,12 +234,24 @@ void testBitmasks() {
     printf("Edges\n");
     printBitmask(EDGES);
 
+    printf("W Castle K\n");
+    printBitmask(W_CASTLE_K);
+    printf("W Castle Q\n");
+    printBitmask(W_CASTLE_Q);
+    printf("B Castle K\n");
+    printBitmask(B_CASTLE_K);
+    printf("B Castle Q\n");
+    printBitmask(B_CASTLE_Q);
+
+    for(j=0; j<8; j++) {
+        printf("Ray casts #%d\n", j);
+        loop(64, RAYS[j]);
+    }
     #undef loop
 }
 
 void testSumBits() {
-    #define test(e, x) printf("%d %d %s\n", e, _sumBits(x), #x);
-
+    #define test(e, x) printf("%d %d %s\n", e, sumBits(x), #x);
     test(8, FILE_A);
     test(8, FILE_B);
     test(8, RANK_1);
@@ -211,7 +263,6 @@ void testSumBits() {
     test(28, EDGES);
     test(32, EDGES ^ LIGHT_SQUARES);
     test(32, EDGES ^ DARK_SQUARES);
-
     #undef test
 }
 
@@ -230,6 +281,87 @@ void testShifts() {
     loop test(shiftDown, i);
     #undef test
     #undef loop
+}
+
+
+
+/* ********************************************************
+ * position tests                                         *
+ **********************************************************/
+
+void testFromFen() {
+    #define test(s) \
+        printf("Testing FEN: %s\n", s); \
+        state = positionFromFen(s); \
+        printGameState(state); \
+        printBitmask(state.bb[BLOCKERS])
+    GameState state;
+    state = positionFromFen(PERFT2_FEN);
+    printGameState(state);
+    printBitmask(state.bb[BLOCKERS]);
+    printBitmask(hashRook(A1, state.bb[BLOCKERS]));
+    //test(START_FEN);
+    //test(PERFT2_FEN);
+    //test(PERFT3_FEN);
+    //test(PERFT4_FEN);
+    //test(PERFT4_ALT_FEN);
+    //test(PERFT5_FEN);
+    //test(PERFT6_FEN);
+    #undef test
+}
+
+void testToFen() {
+    char szBuffer[256];
+    printf("Expected followed by actual\n\n");
+
+    positionToFen(positionFromFen(START_FEN), szBuffer);
+    printf("Starting board\n%s\n%s\n\n", START_FEN, szBuffer);
+
+    positionToFen(positionFromFen(PERFT2_FEN), szBuffer);
+    printf("PERFT2\n%s\n%s\n\n", PERFT2_FEN, szBuffer);
+
+    positionToFen(positionFromFen(PERFT3_FEN), szBuffer);
+    printf("PERFT3\n%s\n%s\n\n", PERFT3_FEN, szBuffer);
+
+    positionToFen(positionFromFen(PERFT4_FEN), szBuffer);
+    printf("PERFT4\n%s\n%s\n\n", PERFT4_FEN, szBuffer);
+
+    positionToFen(positionFromFen(PERFT4_ALT_FEN), szBuffer);
+    printf("PERFT4 SLT\n%s\n%s\n\n", PERFT4_ALT_FEN, szBuffer);
+
+    positionToFen(positionFromFen(PERFT5_FEN), szBuffer);
+    printf("PERFT5\n%s\n%s\n\n", PERFT5_FEN, szBuffer);
+
+    positionToFen(positionFromFen(PERFT6_FEN), szBuffer);
+    printf("PERFT6\n%s\n%s\n\n", PERFT6_FEN, szBuffer);
+}
+
+
+
+/* ********************************************************
+ * These tests are for move.                              *
+ **********************************************************/
+
+void testPushLAN() {
+    #define next(str) \
+        states[i + 1] = pushLAN(states + i, str); \
+        printf("%s\n", str); \
+        printGameState(states[++i])
+    int i=0;
+    GameState states[20];
+    states[0] = positionFromFen(START_FEN);
+    printGameState(states[0]);
+
+    next("e2e4"); next("d7d5");
+    next("e4d5"); next("c7c6");
+    next("d5c6"); next("g8f6");
+    next("c6b7"); next("g7g6");
+    next("b7a8q"); next("f8g7");
+    next("d2d4"); next("e8g8");
+    next("d4d5"); next("e7e5");
+    next("d5e6");
+
+    #undef next
 }
 
 void testMoveCalculation() {
@@ -262,78 +394,136 @@ void testMoveCalculation() {
     #undef test
 }
 
-void testRays() {
-    int i, j;
-    for(i=0; i<8; i++) {
-        printf("Direction %d - a1 to h8:\n", i);
-        for(j=0; j<NUM_SQUARES; j++) {
-            printBitmask(RAYS[i][j]);
-            printf("\n");
-        }
+void testKingKnightMoves() {
+    int i;
+    printf("King moves - a1 to h8:\n");
+    for(i=0; i<NUM_SQUARES; i++) {
+        printBitmask(KING_TABLE[i]);
+    }
+    printf("Knight moves - a1 to h8:\n");
+    for(i=0; i<NUM_SQUARES; i++) {
+        printBitmask(KNIGHT_TABLE[i]);
     }
 }
 
 void testRelevantOccupancy() {
     int i;
-    printf("Rook, then Bishop relevant occupancy - a1 to h8:\n");
+    printf("Rook relevant occupancy - a1 to h8:\n");
     for(i=0; i<NUM_SQUARES; i++) {
         printBitmask(ROOK_RELEVANT_OCCUPANCY[i]);
-        printf("\n");
+
+    }
+    printf("Bishop relevant occupancy - a1 to h8:\n");
+    for(i=0; i<NUM_SQUARES; i++) {
+        printf("Bishop bits: %d\n", BISHOP_BITS[i]);
         printBitmask(BISHOP_RELEVANT_OCCUPANCY[i]);
-        printf("\nBishop bits: %d\n", BISHOP_BITS[i]);
     }
 }
+
+
+
+/* ********************************************************
+ * These tests are for magic.                             *
+ **********************************************************/
 
 void testMagic() {
-    int i, j;
+    int i, rookCollisions = 0, bishopCollisions = 0;
 
     // Zero out tables
-    memset(ROOK_TABLE, 0, sizeof(bitmask) * NUM_SQUARES * (1 << 12));
-    memset(ROOK_TABLE, 0, sizeof(bitmask) * NUM_SQUARES * (1 << 9));
+    memset(ROOK_TABLE, -1, sizeof(bitmask) * NUM_SQUARES * (1 << 12));
+    memset(BISHOP_TABLE, -1, sizeof(bitmask) * NUM_SQUARES * (1 << 9));
 
     for(i=0; i<NUM_SQUARES; i++) {
-        for(j=0; j<(1<<12); j++) {
-
-        }
-        for(j=0; j<(1<<9); j++) {
-
-        }
+        rookCollisions += _testMagicRook(
+            i, ROOK_RELEVANT_OCCUPANCY[i], 0);
+        bishopCollisions += _testMagicBishop(
+            i, BISHOP_RELEVANT_OCCUPANCY[i], 0);
     }
+    printf("Rook collisions: %d\nBishop collisions: %d\n",
+           rookCollisions, bishopCollisions);
 }
 
-void _testMagicRook(bitmask bm, Square i) {
-    int j = ROOK_MAGIC_NUMS[i] * bm >> 52;
-    if(ROOK_TABLE[i][j]++) {
-        printf("Rook magic failure at i=%d j=%d\n", i, j);
-    }
+int _testMagicRook(Square rookSquare, bitmask bm, int i) {
+    bitmask prevHash, calculated;
+    prevHash = hashRook(rookSquare, bm);
+    calculated = _calculateRookMoves(rookSquare, bm);
+    // if there was a prev hash and current is different
+    if(~prevHash && calculated != prevHash) return 1;
+    hashRook(rookSquare, bm) = calculated;
     for(; i<NUM_SQUARES; i++) {
-        if(bm & SQUARES[i]) {
-            _initMagicRook(bm & ~SQUARES[i], i + 1);
-        }
+        if(bm & SQUARES[i] && _testMagicRook(rookSquare, bm & ~SQUARES[i], i + 1)) return 1;
     }
+    return 0;
 }
 
-void _testMagicBishop(bitmask bm, Square i, int bits) {
-    int j = BISHOP_MAGIC_NUMS[i] * bm >> (64 - bits);
-    if(BISHOP_TABLE[i][j]++) {
-        printf("Bishop magic failure at i=%d j=%d\n", i, j);
-    }
+int _testMagicBishop(Square bishopSquare, bitmask bm, int i) {
+    bitmask prevHash, calculated;
+    prevHash = hashBishop(bishopSquare, bm);
+    calculated = _calculateBishopMoves(bishopSquare, bm);
+    if(~prevHash && calculated != prevHash) return 1;
+    hashBishop(bishopSquare, bm) = calculated;
     for(; i<NUM_SQUARES; i++) {
-        if(bm & SQUARES[i]) {
-            _initMagicBishop(bm & ~SQUARES[i], i + 1, bits);
+        if(bm & SQUARES[i] && _testMagicBishop(bishopSquare, bm & ~SQUARES[i], i + 1)) return 1;
+    }
+    return 0;
+}
+
+
+
+/* ********************************************************
+ * These tests are for movegen.                           *
+ **********************************************************/
+
+void testGeneratePseudoLegalMoves() {
+    #define test(s) \
+        state = positionFromFen(s); \
+        moves = generatePseudoLegalMoves(&state, &numMoves); \
+        printf("Num moves: %d\n", numMoves); \
+        for(i=0; i<numMoves; i++) { \
+            printMove(moves[i]); \
+            printMoveVerbose(state, moves[i]); \
         }
-    }
+    int numMoves, i;
+    GameState state;
+    Move *moves;
+    //test(START_FEN);
+    //test(PERFT2_FEN);
+    test(PERFT3_FEN);
+    //test(PERFT4_FEN);
+    //test(PERFT4_ALT_FEN);
+    //test(PERFT5_FEN);
+    //test(PERFT6_FEN);
+    free(moves);
+    #undef test
 }
 
-void testBitboards() {
-    int i;
-
-    printBitmask(0);
-    for(i=0; i<64; i++) {
-        printBitmask(1ULL << i);
-    }
+void testGenerateLegalMoves() {
+    #define test(s, verbose) \
+        printf("Testing FEN: %s\n", s); \
+        state = positionFromFen(s); \
+        moves = generateLegalMoves(&state, &numMoves); \
+        printf("Num moves: %d\n", numMoves); \
+        if(verbose) { \
+            for(i=0; i<numMoves; i++) { \
+                printMove(moves[i]); \
+                printMoveVerbose(state, moves[i]); \
+            } \
+        } \
+        printf("\n");
+    int numMoves, i;
+    GameState state;
+    Move *moves;
+    test(START_FEN, 0);
+    test(PERFT2_FEN, 0);
+    test(PERFT3_FEN, 0);
+    test(PERFT4_FEN, 0);
+    test(PERFT4_ALT_FEN, 0);
+    test(PERFT5_FEN, 0);
+    test(PERFT6_FEN, 0);
+    free(moves);
+    #undef test
 }
 
-void testMovegen() {
+void testGenerateLegalStates() {
     // TODO
 }

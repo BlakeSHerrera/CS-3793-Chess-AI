@@ -19,7 +19,9 @@
 #include <stdio.h>
 #include <string.h>
 
-static char szBuffer[256];
+// Theoretically longest game is a bit less than 6000 moves
+static char szBuffer[6000 * 6];
+static GameState state;
 
 void uciCommunicate() {
     typedef struct pair {
@@ -36,11 +38,11 @@ void uciCommunicate() {
 
     while(1) {
         if(gets(szBuffer) == NULL) {
-            fprintf(stdin, "Read from stdin failed.\n");
+            fprintf(stderr, "Read from stdin failed.\n");
             exit(-1);
         }
         if(strtok(szBuffer, " ") == NULL) {
-            fprintf(stdin, "Tokenizing stdin failed.");
+            fprintf(stderr, "Tokenizing stdin failed.");
             exit(-1);
         }
         for(i=0; i<11; i++) {
@@ -85,7 +87,19 @@ void uciNewGame() {
 }
 
 void uciPosition() {
-    // TODO
+    #define next() strtok(NULL, " ")
+    char *szToken;
+    szToken = strtok(NULL, " ");
+    if(!strcmp(szToken, "startpos")) {
+        state = positionFromFen(START_FEN);
+    } else {
+        state = positionFromFenParts(szToken,
+            next(), next(), next(), next(), next());
+    }
+    while(next() != NULL) {
+        pushLAN(&state, szToken);
+    }
+    #undef next
 }
 
 void uciStop() {

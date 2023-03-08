@@ -15,11 +15,14 @@
 #include "magic.h"
 
 #include <stdio.h>
+#include <string.h>
 
 int main(int argc, char **argv) {
     bitboardInit();
     movegenInit();
-    uciCommunicate();
+    //findMagics();
+    testGenerateLegalMoves();
+    //uciCommunicate();
 
     return 0;
 }

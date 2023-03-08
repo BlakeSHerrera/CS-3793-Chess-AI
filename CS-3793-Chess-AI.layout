@@ -1,100 +1,149 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
-	<ActiveTarget name="Debug" />
-	<File name="position.c" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<ActiveTarget name="Release" />
+	<File name="uci.h" open="1" top="1" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3646" topLine="108" />
+			<Cursor1 position="411" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="movegen.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="move.h" open="1" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4523" topLine="130" />
+			<Cursor1 position="237" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="magic.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="bitboard.h" open="1" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="455" topLine="0" />
+			<Cursor1 position="413" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="square.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="uci.c" open="1" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="418" topLine="27" />
+			<Cursor1 position="2409" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="debug.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="position.c" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="916" topLine="15" />
-		</Cursor>
-	</File>
-	<File name="main.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="417" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="debug.c" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="6472" topLine="107" />
+			<Cursor1 position="6265" topLine="0" />
 		</Cursor>
 		<Folding>
 			<Collapse line="32" />
-			<Collapse line="50" />
-			<Collapse line="63" />
-			<Collapse line="79" />
-			<Collapse line="93" />
-			<Collapse line="99" />
-			<Collapse line="104" />
-			<Collapse line="116" />
-			<Collapse line="198" />
+			<Collapse line="98" />
+			<Collapse line="164" />
+			<Collapse line="184" />
+			<Collapse line="214" />
+			<Collapse line="218" />
+			<Collapse line="222" />
+			<Collapse line="267" />
+			<Collapse line="271" />
 		</Folding>
 	</File>
-	<File name="bitboard.c" open="1" top="1" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="debug.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2062" topLine="53" />
+			<Cursor1 position="215" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="magic.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="movegen.c" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4014" topLine="0" />
+			<Cursor1 position="14049" topLine="0" />
 		</Cursor>
 		<Folding>
-			<Collapse line="14" />
-			<Collapse line="81" />
+			<Collapse line="30" />
+			<Collapse line="86" />
+			<Collapse line="95" />
+			<Collapse line="104" />
+			<Collapse line="137" />
 		</Folding>
 	</File>
-	<File name="movegen.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="piece.h" open="1" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2474" topLine="9" />
+			<Cursor1 position="107" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="move.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="move.c" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="753" topLine="0" />
+			<Cursor1 position="1563" topLine="0" />
+		</Cursor>
+		<Folding>
+			<Collapse line="112" />
+		</Folding>
+	</File>
+	<File name="piece.c" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="176" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="position.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="square.c" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1432" topLine="15" />
+			<Cursor1 position="0" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="uci.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="movegen.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="411" topLine="45" />
+			<Cursor1 position="684" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="bitboard.h" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="bitboard.c" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1294" topLine="49" />
+			<Cursor1 position="2184" topLine="0" />
+		</Cursor>
+		<Folding>
+			<Collapse line="106" />
+			<Collapse line="110" />
+			<Collapse line="114" />
+			<Collapse line="118" />
+			<Collapse line="127" />
+		</Folding>
+	</File>
+	<File name="magic.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="419" topLine="2" />
 		</Cursor>
 	</File>
-	<File name="piece.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="position.h" open="1" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="433" topLine="0" />
+			<Cursor1 position="877" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="uci.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="magic.c" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="11" topLine="0" />
+			<Cursor1 position="361" topLine="0" />
 		</Cursor>
+		<Folding>
+			<Collapse line="19" />
+			<Collapse line="86" />
+		</Folding>
+	</File>
+	<File name="main.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="105" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="square.h" open="1" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1425" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="debug.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="15797" topLine="0" />
+		</Cursor>
+		<Folding>
+			<Collapse line="33" />
+			<Collapse line="51" />
+			<Collapse line="64" />
+			<Collapse line="80" />
+			<Collapse line="152" />
+			<Collapse line="158" />
+			<Collapse line="178" />
+			<Collapse line="252" />
+			<Collapse line="268" />
+			<Collapse line="312" />
+			<Collapse line="344" />
+			<Collapse line="366" />
+			<Collapse line="396" />
+			<Collapse line="408" />
+			<Collapse line="428" />
+		</Folding>
 	</File>
 </CodeBlocks_layout_file>

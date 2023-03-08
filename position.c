@@ -10,13 +10,30 @@
  #include "piece.h"
  #include "bitboard.h"
  #include "square.h"
+ #include "movegen.h"
+ #include "magic.h"
 
  #include <stdlib.h>
  #include <string.h>
  #include <stdio.h>
 
-GameState positionFromFen(char *szFen) {
-    int i, j, pieceNum[NUM_PIECES];
+GameState positionFromFen(const char *szFen) {
+    const char *a, *b, *c, *d, *e;
+    int i=0;
+    #define loop() for(; szFen[i] != ' '; i++) {}
+    loop(); a = szFen + ++i;  // turn
+    loop(); b = szFen + ++i;  // castling rights
+    loop(); c = szFen + ++i;  // ep target
+    loop(); d = szFen + ++i;  // half move counter
+    loop(); e = szFen + ++i;  // full move counter
+    #undef loop
+    return positionFromFenParts(szFen, a, b, c, d, e);
+}
+
+GameState positionFromFenParts(const char *szBoard, const char *szTurn,
+        const char *szCastlingRights, const char *szEPTarget,
+        const char *szHalfMoveCounter, const char *szFullMoveCounter) {
+    int i, j, pieceNum[255];
     char c;
     GameState state;
     state.prev = NULL;
@@ -28,11 +45,13 @@ GameState positionFromFen(char *szFen) {
     }
 
     // Set pieces
-    for(i=0, j=0, c=szFen[0]; c!=' '; c=szFen[++i]) {
+    for(i=0, j=0, c=szBoard[0];
+            c!=' ' && c!='\0';
+            c=szBoard[++i]) {
         if(c == '/') {
             // pass
         } else if('0' <= c && c <= '9') {
-            j += c - '0' + 1;
+            j += c - '0';
         } else {
             // FEN is top to bottom
             state.bb[pieceNum[(int) c]] |= 1ULL << ((7-j/8)*8 + j%8);
@@ -40,54 +59,44 @@ GameState positionFromFen(char *szFen) {
         }
     }
     state.bb[BLOCKERS] = NO_SQUARES;
-    for(i=0; i<NUM_PIECES; i++) {
-        state.bb[BLOCKERS] |= state.bb[i];
+    for(j=0; j<NUM_PIECES; j++) {
+        state.bb[BLOCKERS] |= state.bb[j];
     }
-
     // Set turn
-    state.fenInfo |= szFen[++i] == 'w';
-    ++i;
-
+    setTurn(state, szTurn[0] == 'w');
     // Set castling rights
-    for(c=szFen[++i]; c!=' '; c=szFen[++i]) {
+    for(i=0, c=szCastlingRights[i++];
+            c!=' ' && c!='\0';
+            c=szCastlingRights[i++]) {
         switch(c) {
         case 'K':
-            state.fenInfo |= 1 << 1;
+            setWCanCastleK(state, 1);
             break;
         case 'Q':
-            state.fenInfo |= 1 << 2;
+            setWCanCastleQ(state, 1);
             break;
         case 'k':
-            state.fenInfo |= 1 << 3;
+            setBCanCastleK(state, 1);
             break;
         case 'q':
-            state.fenInfo |= 1 << 4;
+            setBCanCastleQ(state, 1);
             break;
         default:
             break;
         }
     }
-
     // Set ep target
-    c = szFen[++i];
-    if(c != '-') {
-        state.fenInfo |= 1 << 5;
-        state.fenInfo |= ((c-'a')*8 + szFen[++i]-'1') << 6;
+    if(szEPTarget[0] != '-') {
+        setHasEPTarget(state, 1);
+        setEPTarget(state, szEPTarget[0]-'a' + 8 * (szEPTarget[1]-'1'));
     }
-    i += 2;
-
-    // Set half move counter
-    state.fenInfo |= atoi(szFen + i) << 12;
-    while(szFen[++i] != ' ');
-    ++i;
-
-    // Set up full move counter
-    state.fenInfo |= atoi(szFen + i) << 19;
-
+    // Set half and full move counters
+    setHalfMoveCounter(state, atoi(szHalfMoveCounter));
+    setFullMoveCounter(state, atoi(szFullMoveCounter));
     return state;
 }
 
-void posisitionToFen(GameState state, char *szFenBuffer) {
+void positionToFen(GameState state, char *szFenBuffer) {
     int i, j, k, blanks, found;
 
     // Set pieces
@@ -100,28 +109,39 @@ void posisitionToFen(GameState state, char *szFenBuffer) {
             szFenBuffer[i++] = '/';
         }
         for(k=found=0; k<NUM_PIECES; k++) {
-            if(state.bb[k] & 1 << ((7-j/8)*8 + j%8)) {
+            if(state.bb[k] & 1ULL << ((7 - j/8) * 8 + j%8)) {
                 if(blanks > 0) {
                     szFenBuffer[i++] = (char) (blanks + '0');
                     blanks = 0;
-                    found++;
                 }
+                found++;
+                szFenBuffer[i++] = PIECE_STR[k];
             }
         }
         blanks += !found;
     }
+    if(blanks != 0) {
+        szFenBuffer[i++] = '0' + blanks;
+    }
 
     // Set turn
     szFenBuffer[i++] = ' ';
-    szFenBuffer[i++] = state.fenInfo & 1 ? 'w' : 'b';
+    szFenBuffer[i++] = getTurn(state) ? 'w' : 'b';
 
     // Set castling rights
     szFenBuffer[i++] = ' ';
-    if(state.fenInfo & 0b11110) {
-        for(j=1; j<6; j++) {
-            if(state.fenInfo & (1 << j)) {
-                szFenBuffer[i++] = "KQkq"[j - 1];
-            }
+    if(getCastlingRights(state)) {
+        if(wCanCastleK(state)) {
+            szFenBuffer[i++] = 'K';
+        }
+        if(wCanCastleQ(state)) {
+            szFenBuffer[i++] = 'Q';
+        }
+        if(bCanCastleK(state)) {
+            szFenBuffer[i++] = 'k';
+        }
+        if(bCanCastleQ(state)) {
+            szFenBuffer[i++] = 'q';
         }
     } else {
         szFenBuffer[i++] = '-';
@@ -129,21 +149,21 @@ void posisitionToFen(GameState state, char *szFenBuffer) {
 
     // Set ep target
     szFenBuffer[i++] = ' ';
-    if(state.fenInfo & (1 << 5)) {
-        szFenBuffer[i++] = "abcdefgh"[(state.fenInfo >> 6 & 63) % 8];
-        szFenBuffer[i++] = "12345678"[(state.fenInfo >> 6 & 63) / 8];
+    if(hasEPTarget(state)) {
+        szFenBuffer[i++] = "abcdefgh"[getEPTarget(state) % 8];
+        szFenBuffer[i++] = "12345678"[getEPTarget(state) / 8];
     } else {
         szFenBuffer[i++] = '-';
     }
 
     // Set up move counters
     sprintf(szFenBuffer + i, " %d %d",
-        state.fenInfo >> 12 & 127,
-        state.fenInfo >> 18);
+        getHalfMoveCounter(state),
+        getFullMoveCounter(state));
 }
 
 int is50MoveRule(GameState state) {
-    return (state.fenInfo >> 12 & 127) >= 50;
+    return getHalfMoveCounter(state) >= 100;
 }
 
 int is3FoldRepetition(GameState state) {
@@ -152,6 +172,109 @@ int is3FoldRepetition(GameState state) {
 }
 
 int isIllegalPosition(GameState state) {
-    // TODO
-    return 0;
+    return sumBits(state.bb[W_KING]) != 1 ||
+        sumBits(state.bb[B_KING]) != 1 ||
+        state.bb[W_PAWN] | state.bb[B_PAWN] | RANK_1 | RANK_8 ||
+        getTurn(state) ? bInCheck(state) : wInCheck(state);
+}
+
+#define u(x) shiftUp((x), 1)
+#define d(x) shiftDown((x), 1)
+#define l(x) shiftLeft((x), 1)
+#define r(x) shiftRight((x), 1)
+int bAttacks(GameState state, Square sq) {
+    return
+        state.bb[B_PAWN] & (
+            u(l(state.bb[W_KING])) |
+            u(r(state.bb[W_KING]))) ||
+        KNIGHT_TABLE[sq] & state.bb[B_KNIGHT] ||
+        KING_TABLE[sq] & state.bb[B_KING] ||
+        hashRook(sq, state.bb[BLOCKERS]) &
+            (state.bb[B_ROOK] | state.bb[B_QUEEN]) ||
+        hashBishop(sq, state.bb[BLOCKERS]) &
+            (state.bb[B_BISHOP] | state.bb[B_QUEEN]);
+}
+
+int wAttacks(GameState state, Square sq) {
+    return
+        state.bb[W_PAWN] & (
+            d(l(state.bb[B_KING])) |
+            d(r(state.bb[B_KING]))) ||
+        KNIGHT_TABLE[sq] & state.bb[W_KNIGHT] ||
+        KING_TABLE[sq] & state.bb[W_KING] ||
+        hashRook(sq, state.bb[BLOCKERS]) &
+            (state.bb[W_ROOK] | state.bb[W_QUEEN]) ||
+        hashBishop(sq, state.bb[BLOCKERS]) &
+            (state.bb[W_BISHOP] | state.bb[W_QUEEN]);
+}
+#undef u
+#undef d
+#undef l
+#undef r
+
+int wInCheck(GameState state) {
+    return bAttacks(state, LSB(state.bb[W_KING]) - 1);
+}
+
+int bInCheck(GameState state) {
+    return wAttacks(state, LSB(state.bb[B_KING]) - 1);
+}
+
+bitmask getAllAttacks(GameState state, int white) {
+    int square;
+    bitmask bm, attacks = 0ULL;
+    white = !!white;
+
+    for(bm = state.bb[B_ROOK - 6 * white] |
+            state.bb[B_QUEEN - 6 * white];
+            bm;
+            bm &= ~(1ULL << square)) {
+        square = LSB(bm) - 1;
+        attacks |= hashRook(square, state.bb[BLOCKERS]);
+    }
+
+    for(bm = state.bb[B_BISHOP - 6 * white] |
+            state.bb[B_QUEEN - 6 * white];
+            bm;
+            bm &= ~(1ULL << square)) {
+        square = LSB(bm) - 1;
+        attacks |= hashBishop(square, state.bb[BLOCKERS]);
+    }
+
+    for(bm = state.bb[B_KNIGHT - 6 * white];
+            bm;
+            bm &= ~(1ULL << square)) {
+        square = LSB(bm) - 1;
+        attacks |= KNIGHT_TABLE[square];
+    }
+
+    for(bm = state.bb[B_KING - 6 * white];
+            bm;
+            bm &= ~(1ULL << square)) {
+        square = LSB(bm) - 1;
+        attacks |= KING_TABLE[square];
+    }
+
+    for(bm = state.bb[B_PAWN - 6 * white];
+            bm;
+            bm &= ~(1ULL << square)) {
+        square = LSB(bm) - 1;
+        attacks |= PAWN_TABLE[white][square];
+    }
+
+    return attacks;
+}
+
+int getPieceFromSquare(GameState state, Square square) {
+    return getPieceFromBitmask(state, 1ULL << square);
+}
+
+int getPieceFromBitmask(GameState state, bitmask square) {
+    int i;
+    for(i=0; i<NUM_PIECES; i++) {
+        if(state.bb[i] & square) {
+            return i;
+        }
+    }
+    return i;
 }

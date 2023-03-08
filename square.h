@@ -2,7 +2,7 @@
  * square.h contains useful macros for readability. A square on the board
  * is indexed to an array index.
  * @author Blake Herrera
- * @date 2023-12-15
+ * @date 2023-02-15
  */
 
 #ifndef SQUARE_H_INCLUDED
@@ -75,8 +75,15 @@
 #define G8 62
 #define H8 63
 
-#define charsToSquare(file, rank) (((file)-'a') * 8 + (rank) - '1')
+#define charsToSquare(file, rank) \
+    (((file)-'a') * 8 + (rank) - '1')
+#define getRank(square) \
+    ((square) >> 3)
+#define getFile(square) \
+    ((square) & 0b111)
 
 typedef unsigned char Square;
+
+extern char *SQUARE_TO_STR[64];
 
 #endif // SQUARE_H_INCLUDED

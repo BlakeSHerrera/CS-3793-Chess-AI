@@ -10,8 +10,19 @@
 #ifndef MAGIC_H_INCLUDED
 #define MAGIC_H_INCLUDED
 
+#define hashRook(square, blockers) \
+    ROOK_TABLE[square][ \
+        ROOK_MAGIC_NUMS[square] * \
+        ((blockers) & ROOK_RELEVANT_OCCUPANCY[square]) >> \
+        (NUM_SQUARES - ROOK_BITS[square])]
+#define hashBishop(square, blockers) \
+    BISHOP_TABLE[square][ \
+        BISHOP_MAGIC_NUMS[square] * \
+        ((blockers) & BISHOP_RELEVANT_OCCUPANCY[square]) >> \
+        (NUM_SQUARES - BISHOP_BITS[square])]
+
 /**
- * This function finds magic numbers.
+ * This function finds magic numbers. Takes a minute to run.
  */
 void findMagics();
 
