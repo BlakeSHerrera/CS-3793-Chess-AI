@@ -6,6 +6,10 @@
  * @see uci.h
  */
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "bitboard.h"
 #include "debug.h"
 #include "move.h"
@@ -14,10 +18,6 @@
 #include "position.h"
 #include "square.h"
 #include "uci.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 // Theoretically longest game is a bit less than 6000 moves
 static char szBuffer[6000 * 6];
