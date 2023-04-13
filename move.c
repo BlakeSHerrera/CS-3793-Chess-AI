@@ -45,8 +45,8 @@ GameState pushMoveVerbose(GameState *state, Square source, Square destination,
     nextState.bb[capturedPiece] &= ~(1ULL << destination);
     nextState.bb[BLOCKERS] |= 1ULL << destination;
     if(isEP) {
-        nextState.bb[capturedPiece] &= ~(1ULL << (8 + getTurn(*state) * -16));
-        nextState.bb[BLOCKERS] &= ~(1ULL << (8 + getTurn(*state) * -16));
+        nextState.bb[capturedPiece] &= ~(1ULL << (destination + 8 + getTurn(*state) * -16));
+        nextState.bb[BLOCKERS] &= ~(1ULL << (destination + 8 + getTurn(*state) * -16));
     }
 
     // Check for castling, move rook
@@ -81,7 +81,7 @@ GameState pushMoveVerbose(GameState *state, Square source, Square destination,
     if(movedPiece == W_KING || source == A1 || destination == A1) {
         setWCanCastleQ(nextState, 0);
     }
-    if(movedPiece == W_KING || source == H1 || destination == H8) {
+    if(movedPiece == W_KING || source == H1 || destination == H1) {
         setWCanCastleK(nextState, 0);
     }
     if(movedPiece == B_KING || source == A8 || destination == A8) {

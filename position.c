@@ -185,8 +185,8 @@ int isIllegalPosition(GameState state) {
 int bAttacks(GameState state, Square sq) {
     return
         state.bb[B_PAWN] & (
-            u(l(state.bb[W_KING])) |
-            u(r(state.bb[W_KING]))) ||
+            u(l(1ULL << sq)) |
+            u(r(1ULL << sq))) ||
         KNIGHT_TABLE[sq] & state.bb[B_KNIGHT] ||
         KING_TABLE[sq] & state.bb[B_KING] ||
         hashRook(sq, state.bb[BLOCKERS]) &
@@ -198,8 +198,8 @@ int bAttacks(GameState state, Square sq) {
 int wAttacks(GameState state, Square sq) {
     return
         state.bb[W_PAWN] & (
-            d(l(state.bb[B_KING])) |
-            d(r(state.bb[B_KING]))) ||
+            d(l(1ULL << sq)) |
+            d(r(1ULL << sq))) ||
         KNIGHT_TABLE[sq] & state.bb[W_KNIGHT] ||
         KING_TABLE[sq] & state.bb[W_KING] ||
         hashRook(sq, state.bb[BLOCKERS]) &

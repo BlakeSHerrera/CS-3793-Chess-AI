@@ -37,7 +37,7 @@ void uciCommunicate() {
     int i;
 
     while(1) {
-        if(gets(szBuffer) == NULL) {
+        if(fgets(szBuffer, sizeof(szBuffer), stdin) == NULL) {
             fprintf(stderr, "Read from stdin failed.\n");
             exit(-1);
         }

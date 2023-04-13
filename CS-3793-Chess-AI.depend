@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1678152592 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\bitboard.c
+1678241279 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\bitboard.c
 	"bitboard.h"
 	"piece.h"
 	"square.h"
@@ -12,7 +12,7 @@
 	<stdlib.h>
 	<string.h>
 
-1678145035 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.c
+1680745381 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.c
 	"bitboard.h"
 	"debug.h"
 	"move.h"
@@ -25,9 +25,9 @@
 	<stdio.h>
 	<string.h>
 
-1676616613 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.h
+1676620213 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.h
 
-1678228567 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\main.c
+1681377382 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\main.c
 	"bitboard.h"
 	"debug.h"
 	"move.h"
@@ -40,7 +40,7 @@
 	<stdio.h>
 	<string.h>
 
-1678236721 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\movegen.c
+1681373892 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\movegen.c
 	"movegen.h"
 	"square.h"
 	"bitboard.h"
@@ -51,26 +51,26 @@
 	<stdlib.h>
 	<stdio.h>
 
-1678225969 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\movegen.h
+1680747551 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\movegen.h
 	"move.h"
 	"bitboard.h"
 	"square.h"
 	"position.h"
 
-1678208277 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\move.h
+1678241279 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\move.h
 	"square.h"
 	"piece.h"
 	"position.h"
 
-1678210310 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\square.h
+1678241279 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\square.h
 
-1678208862 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\piece.h
+1678829015 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\piece.h
 
-1678152685 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\bitboard.h
+1678241279 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\bitboard.h
 	"piece.h"
 	"square.h"
 
-1678228809 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.c
+1681371911 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.c
 	"position.h"
 	"piece.h"
 	"bitboard.h"
@@ -81,12 +81,12 @@
 	<string.h>
 	<stdio.h>
 
-1678159432 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.h
+1678241279 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.h
 	"bitboard.h"
 	"piece.h"
 	"square.h"
 
-1678236210 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\debug.c
+1681376705 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\debug.c
 	"bitboard.h"
 	"debug.h"
 	"move.h"
@@ -99,16 +99,18 @@
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
+	<time.h>
+	<error.h>
 
-1678219523 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\debug.h
+1681376705 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\debug.h
 	"bitboard.h"
 	"square.h"
 	"position.h"
 	"move.h"
 
-1678228260 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\magic.h
+1678831760 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\magic.h
 
-1678226995 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\magic.c
+1678241279 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\magic.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -117,15 +119,15 @@
 	"bitboard.h"
 	"movegen.h"
 
-1678236712 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\move.c
+1681374797 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\move.c
 	"move.h"
 	"piece.h"
 	<math.h>
 	<stdio.h>
 
-1678208862 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\piece.c
+1678241279 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\piece.c
 	"piece.h"
 
-1678210310 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\square.c
+1678241279 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\square.c
 	"square.h"
 
