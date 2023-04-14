@@ -2,9 +2,125 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Release" />
+	<File name="debug.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="17081" topLine="42" />
+		</Cursor>
+		<Folding>
+			<Collapse line="27" />
+			<Collapse line="43" />
+			<Collapse line="54" />
+			<Collapse line="66" />
+			<Collapse line="78" />
+			<Collapse line="82" />
+			<Collapse line="91" />
+			<Collapse line="99" />
+			<Collapse line="111" />
+			<Collapse line="132" />
+			<Collapse line="145" />
+			<Collapse line="151" />
+			<Collapse line="171" />
+			<Collapse line="245" />
+			<Collapse line="261" />
+			<Collapse line="284" />
+			<Collapse line="305" />
+			<Collapse line="337" />
+			<Collapse line="359" />
+			<Collapse line="389" />
+			<Collapse line="401" />
+			<Collapse line="421" />
+			<Collapse line="438" />
+			<Collapse line="451" />
+			<Collapse line="469" />
+			<Collapse line="492" />
+			<Collapse line="519" />
+			<Collapse line="529" />
+		</Folding>
+	</File>
+	<File name="debug.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1668" topLine="30" />
+		</Cursor>
+	</File>
+	<File name="piece.c" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="176" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="position.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1110" topLine="145" />
+		</Cursor>
+	</File>
+	<File name="movegen.c" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="13878" topLine="299" />
+		</Cursor>
+		<Folding>
+			<Collapse line="30" />
+			<Collapse line="86" />
+			<Collapse line="95" />
+			<Collapse line="104" />
+		</Folding>
+	</File>
+	<File name="move.h" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2931" topLine="77" />
+		</Cursor>
+	</File>
 	<File name="magic.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="926" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="bitboard.h" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2873" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="uci.h" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="220" topLine="21" />
+		</Cursor>
+	</File>
+	<File name="position.c" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5713" topLine="46" />
+		</Cursor>
+		<Folding>
+			<Collapse line="32" />
+			<Collapse line="98" />
+			<Collapse line="164" />
+			<Collapse line="214" />
+			<Collapse line="218" />
+			<Collapse line="222" />
+			<Collapse line="267" />
+			<Collapse line="271" />
+		</Folding>
+	</File>
+	<File name="uci.c" open="1" top="1" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1013" topLine="30" />
+		</Cursor>
+	</File>
+	<File name="search.c" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="440" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="movegen.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3724" topLine="82" />
+		</Cursor>
+	</File>
+	<File name="main.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="756" topLine="5" />
+		</Cursor>
+	</File>
+	<File name="square.h" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="248" topLine="59" />
 		</Cursor>
 	</File>
 	<File name="magic.c" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -28,50 +144,14 @@
 			<Collapse line="127" />
 		</Folding>
 	</File>
-	<File name="uci.h" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="220" topLine="21" />
-		</Cursor>
-	</File>
-	<File name="uci.c" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1037" topLine="17" />
-		</Cursor>
-	</File>
-	<File name="debug.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4954" topLine="56" />
-		</Cursor>
-		<Folding>
-			<Collapse line="40" />
-			<Collapse line="51" />
-			<Collapse line="63" />
-			<Collapse line="75" />
-			<Collapse line="79" />
-			<Collapse line="88" />
-			<Collapse line="103" />
-			<Collapse line="115" />
-			<Collapse line="136" />
-		</Folding>
-	</File>
-	<File name="piece.c" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="176" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="position.h" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2736" topLine="55" />
-		</Cursor>
-	</File>
 	<File name="piece.h" open="0" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="587" topLine="4" />
+			<Cursor1 position="241" topLine="9" />
 		</Cursor>
 	</File>
-	<File name="movegen.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="search.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3724" topLine="82" />
+			<Cursor1 position="392" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="square.c" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -79,63 +159,9 @@
 			<Cursor1 position="0" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="bitboard.h" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="move.c" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2873" topLine="25" />
+			<Cursor1 position="3125" topLine="37" />
 		</Cursor>
-	</File>
-	<File name="move.c" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="277" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="square.h" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="248" topLine="59" />
-		</Cursor>
-	</File>
-	<File name="move.h" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2448" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="position.c" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="6265" topLine="37" />
-		</Cursor>
-		<Folding>
-			<Collapse line="32" />
-			<Collapse line="98" />
-			<Collapse line="164" />
-			<Collapse line="184" />
-			<Collapse line="197" />
-			<Collapse line="214" />
-			<Collapse line="218" />
-			<Collapse line="222" />
-			<Collapse line="267" />
-			<Collapse line="271" />
-		</Folding>
-	</File>
-	<File name="debug.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2771" topLine="78" />
-		</Cursor>
-	</File>
-	<File name="main.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="902" topLine="9" />
-		</Cursor>
-	</File>
-	<File name="movegen.c" open="1" top="1" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="9594" topLine="125" />
-		</Cursor>
-		<Folding>
-			<Collapse line="30" />
-			<Collapse line="86" />
-			<Collapse line="95" />
-			<Collapse line="104" />
-			<Collapse line="137" />
-		</Folding>
 	</File>
 </CodeBlocks_layout_file>

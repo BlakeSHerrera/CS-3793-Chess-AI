@@ -12,7 +12,7 @@
 	<stdlib.h>
 	<string.h>
 
-1680745381 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.c
+1681452489 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.c
 	"bitboard.h"
 	"debug.h"
 	"move.h"
@@ -21,13 +21,17 @@
 	"position.h"
 	"square.h"
 	"uci.h"
+	"search.h"
+	"evaluate.h"
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
+	<config.h>
+	<unistd.h>
 
 1676620213 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.h
 
-1681377382 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\main.c
+1681452446 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\main.c
 	"bitboard.h"
 	"debug.h"
 	"move.h"
@@ -37,8 +41,13 @@
 	"square.h"
 	"uci.h"
 	"magic.h"
+	"config.h"
+	"search.h"
+	"evaluate.h"
 	<stdio.h>
 	<string.h>
+	<stdlib.h>
+	<time.h>
 
 1681373892 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\movegen.c
 	"movegen.h"
@@ -70,7 +79,7 @@
 	"piece.h"
 	"square.h"
 
-1681371911 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.c
+1681452446 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.c
 	"position.h"
 	"piece.h"
 	"bitboard.h"
@@ -86,7 +95,7 @@
 	"piece.h"
 	"square.h"
 
-1681376705 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\debug.c
+1681424226 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\debug.c
 	"bitboard.h"
 	"debug.h"
 	"move.h"
@@ -119,7 +128,7 @@
 	"bitboard.h"
 	"movegen.h"
 
-1681374797 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\move.c
+1681452446 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\move.c
 	"move.h"
 	"piece.h"
 	<math.h>
@@ -130,4 +139,28 @@
 
 1678241279 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\square.c
 	"square.h"
+
+1681424701 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\config.h
+	<stdio.h>
+
+1681423883 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\search.c
+	"search.h"
+	"move.h"
+	"position.h"
+	"movegen.h"
+	<stdlib.h>
+	<stdio.h>
+
+1681417128 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\search.h
+	"move.h"
+	"position.h"
+
+1681419328 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\evaluate.c
+	"evaluate.h"
+	"piece.h"
+	"position.h"
+
+1681419328 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\evaluate.h
+	"piece.h"
+	"position.h"
 

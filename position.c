@@ -38,7 +38,6 @@ GameState positionFromFenParts(const char *szBoard, const char *szTurn,
     GameState state;
     state.prev = NULL;
     state.fenInfo = 0;
-
     for(i=0; i<NUM_PIECES; i++) {
         pieceNum[(int) PIECE_STR[i]] = i;
         state.bb[i] = NO_SQUARES;

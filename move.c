@@ -112,7 +112,7 @@ GameState pushMoveVerbose(GameState *state, Square source, Square destination,
 
 GameState pushLAN(GameState *state, const char *szLAN) {
     Square source, destination;
-    int movedPiece, capturedPiece, isEP;
+    int movedPiece, capturedPiece, isEP, castling, promotion;
 
     source = szLAN[0] - 'a' + 8 * (szLAN[1] - '1');
     destination = szLAN[2] - 'a' + 8 * (szLAN[3] - '1');
@@ -121,10 +121,12 @@ GameState pushLAN(GameState *state, const char *szLAN) {
             movedPiece == W_PAWN || movedPiece == B_PAWN);
     capturedPiece = isEP ? W_PAWN + 6 * getTurn(*state) :
         getPieceFromSquare(*state, destination);
+    castling = (movedPiece == W_KING || movedPiece == B_KING) &&
+            abs(source - destination) == 2;
+    promotion = szLAN[4] == '\0' ? NUM_PIECES :
+        CHAR_TO_PIECE[(int) szLAN[4]] + getTurn(*state) * -6;
 
     return pushMoveVerbose(
-        state, source, destination, movedPiece, capturedPiece, isEP,
-        (movedPiece == W_KING || movedPiece == B_KING) &&
-            abs(source - destination) == 2,
-        CHAR_TO_PIECE[(int) szLAN[4]] + getTurn(*state) * -6);
+        state, source, destination, movedPiece, capturedPiece,
+        isEP, castling, promotion);
 }

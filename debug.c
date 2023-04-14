@@ -561,7 +561,3 @@ perftResults _performanceTest(GameState state, int depth) {
     free(moves);
     return accumulator;
 }
-
-void testGenerateLegalStates() {
-    // TODO
-}
