@@ -22,7 +22,6 @@
 #include <time.h>
 #include <error.h>
 
-FILE *f;
 char buffer[256];
 
 const unsigned long long int PERFT[9][10] = {
@@ -538,7 +537,6 @@ perftResults _performanceTest(GameState state, int depth) {
     positionToFen(state, buffer);
     for(i=0; i<numMoves; i++) {
         if(depth == 1) {
-            fprintf(f, "%s\n%d\n", buffer, numMoves);
             if(isEP(moves[i])) {
                 accumulator.ep++;
                 accumulator.captures++;

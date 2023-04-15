@@ -29,12 +29,10 @@
 #include <time.h>
 
 int main(int argc, char **argv) {
-    f = fopen("C:/Users/Blake/Downloads/file.txt", "w");
     srand(clock());
     bitboardInit();
     movegenInit();
     //findMagics();
     uciCommunicate();
-    fclose(f);
     return 0;
 }

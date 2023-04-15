@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <config.h>
+#include <unistd.h>
 
 #include "bitboard.h"
 #include "debug.h"
@@ -20,12 +22,6 @@
 #include "uci.h"
 #include "search.h"
 #include "evaluate.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <config.h>
-#include <unistd.h>
 
 // Theoretically longest game is a bit less than 6000 moves
 static char szBuffer[6000 * 6];
@@ -51,14 +47,12 @@ void uciCommunicate() {
     isReady = 0;
 
     printf("CS-3743-AI engine\n");
-    fprintf(f, "CS-3743-AI engine\n");
     while(1) {
         if(fgets(szBuffer, sizeof(szBuffer), stdin) == NULL) {
             fprintf(stderr, "Read from stdin failed.\n");
             exit(-1);
         }
         szBuffer[strcspn(szBuffer, "\n")] = '\0';
-        fprintf(f, " in> %s\n", szBuffer); fflush(f);
         if(strtok(szBuffer, " ") == NULL) {
             fprintf(stderr, "Tokenizing stdin failed.");
             exit(-1);
@@ -77,11 +71,6 @@ void uciBoot() {
     printf("id name %s v%s\nid author %s\n\n"
            "option name numThreads type spin default 1 min 1 max 512\n"
            "uciok\n", ENGINE_NAME, VERSION, AUTHORS);
-    fprintf(f, "out> id name %s v%s\n"
-               "out> id author %s\n\n"
-               "out> option name numThreads type spin default 1 min 1 max 512\n"
-               "out> uciok\n", ENGINE_NAME, VERSION, AUTHORS);
-    fflush(f);
     // TODO add options
     searchStrategy = 0;
     pruning = 0;
@@ -102,7 +91,6 @@ void uciDebug() {
 void uciIsReady() {
     isReady = 1;
     printf("readyok\n");
-    fprintf(f, "out> readyok\n"); fflush(f);
 }
 
 void uciSetOption() {
@@ -130,7 +118,6 @@ void uciSetOption() {
 
 void uciRegister() {
     printf("register later\n");
-    fprintf(f, "out> register later\n"); fflush(f);
     // TODO look up registration?
 }
 
@@ -166,7 +153,6 @@ void uciStop() {
     // TODO threading
     toLAN(bestMove, szBuffer);
     printf("bestmove %s\n", szBuffer);
-    fprintf(f, "out> bestmove %s\n", szBuffer); fflush(f);
 }
 
 void uciPonderHit() {
@@ -227,7 +213,6 @@ void uciGo() {
         bestMove = getRandomMove(state);
         toLAN(bestMove, szBuffer);
         printf("bestmove %s\n", szBuffer);
-        fprintf(f, "out> bestmove %s\n", szBuffer); fflush(f);
     } else if(searchStrategy == MINIMAX) {
         // TODO
     }
