@@ -19,17 +19,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <error.h>
 
-#define PERFT_NODES 0
-#define PERFT_CAPTURES 1
-#define PERFT_EP 2
-#define PERFT_CASTLES 3
-#define PERFT_PROMOTIONS 4
-#define PERFT_CHECKS 5
-#define PERFT_DISCOVERED_CHECKS 6
-#define PERFT_DOUBLE_CHECKS 7
-#define PERFT_CHECKMATES 8
-
+FILE *f;
+char buffer[256];
 
 const unsigned long long int PERFT[9][10] = {
     {1, 20, 400, 8902, 197281, 4865609, 119060324, 3195901860ULL,
@@ -47,8 +41,6 @@ const unsigned long long int PERFT[9][10] = {
     {0, 0, 0, 0, 8, 347, 10828, 435767, 9852036, 400191963}
 };
 
-const char *PERFT2_FEN =
-    "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
 const unsigned long long int PERFT2[9][7] = {
     {1, 48, 2039, 97862, 4085603, 193690690, 8031647685ULL},
     {0, 8, 351, 17102, 757163, 35043416, 1558445096},
@@ -60,8 +52,6 @@ const unsigned long long int PERFT2[9][7] = {
     {0, 0, 0, 1, 43, 30171, 360003}
 };
 
-const char *PERFT3_FEN =
-    "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -";
 const unsigned long long int PERFT3[9][9] = {
     {1, 14, 191, 2812, 43238, 674624, 11030083, 17863361, 3009794393},
     {0, 1, 14, 209, 3348, 52051, 940350, 14519036, 267586558},
@@ -74,10 +64,6 @@ const unsigned long long int PERFT3[9][9] = {
     {0, 0, 0, 0, 17, 0, 2733, 87, 450410}
 };
 
-const char *PERFT4_FEN =
-    "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1";
-const char *PERFT4_ALT_FEN =
-    "r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1 ";
 const unsigned long long int PERFT4[9][7] = {
     {1, 6, 264, 9467, 422333, 15833292, 706045033},
     {0, 0, 87, 1021, 131393, 2046173, 210369132},
@@ -90,14 +76,10 @@ const unsigned long long int PERFT4[9][7] = {
     {0, 0, 0, 22, 5, 50562, 81076}
 };
 
-const char *PERFT5_FEN =
-    "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
 const unsigned long long int PERFT5[1][6] = {
     {0, 44, 1486, 62379, 2103487, 89941194}
 }; // Only nodes are calculated
 
-const char *PERFT6_FEN =
-    "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
 const unsigned long long int PERFT6[1][10] = {
     {1, 46, 2076, 89890, 3894594, 164075551, 6923051137ULL,
     287188994746ULL, 11923589843526ULL, 490154852788714ULL}
@@ -106,6 +88,14 @@ const unsigned long long int PERFT6[1][10] = {
 /* ********************************************************
  * Helper functions                                       *
  **********************************************************/
+
+void add(perftResults *a, perftResults *b) {
+    bitmask *c = (bitmask *) a, *d = (bitmask *) b;
+    int i;
+    for(i=0; i<sizeof(perftResults)/sizeof(bitmask); i++) {
+        c[i] += d[i];
+    }
+}
 
 void printBitmask(bitmask bm) {
     int i, j;
@@ -141,6 +131,7 @@ void printBitboard(bitmask *bb) {
 }
 
 void printGameState(GameState state) {
+    char szFen[255];
     printf("Turn, Castling (qkQK), EP, Half-move, Full-move\n"
            "%d, %d%d%d%d, %d, %d, %d\n",
            getTurn(state), !!bCanCastleQ(state),
@@ -148,6 +139,8 @@ void printGameState(GameState state) {
            !!wCanCastleK(state), hasEPTarget(state) ? getEPTarget(state) : -1,
            getHalfMoveCounter(state), getFullMoveCounter(state));
     printBitboard(state.bb);
+    positionToFen(state, szFen);
+    printf("%s\n", szFen);
 }
 
 void printMove(Move m) {
@@ -524,6 +517,47 @@ void testGenerateLegalMoves() {
     #undef test
 }
 
-void testGenerateLegalStates() {
-    // TODO
+perftResults performanceTest(const char *szFen, int depth) {
+    clock_t start;
+    perftResults results;
+    GameState state = positionFromFen(szFen);
+    start = clock();
+    results = _performanceTest(state, depth);
+    results.seconds = ((double) (clock() - start)) / CLOCKS_PER_SEC;
+    return results;
+}
+
+perftResults _performanceTest(GameState state, int depth) {
+    int numMoves, i;
+    perftResults res, accumulator = {0};
+    if(depth <= 0) {
+        accumulator.nodes = 1;
+        return accumulator;
+    }
+    Move *moves = generateLegalMoves(&state, &numMoves);
+    positionToFen(state, buffer);
+    for(i=0; i<numMoves; i++) {
+        if(depth == 1) {
+            fprintf(f, "%s\n%d\n", buffer, numMoves);
+            if(isEP(moves[i])) {
+                accumulator.ep++;
+                accumulator.captures++;
+            } else if(getCapturedPiece(moves[i]) < NUM_PIECES) {
+                accumulator.captures++;
+            } else if(isCastling(moves[i])) {
+                accumulator.castles++;
+            } else {
+                accumulator.other++;
+            }
+            if(isPromotion(moves[i])) {
+                accumulator.promotions++;
+            }
+            accumulator.nodes++;
+        } else {
+            res = _performanceTest(pushMove(&state, moves[i]), depth - 1);
+            add(&accumulator, &res);
+        }
+    }
+    free(moves);
+    return accumulator;
 }

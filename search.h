@@ -9,6 +9,7 @@
 #define SEARCH_H_INCLUDED
 
 #include "move.h"
+#include "position.h"
 
 /* A move score pair has two fields: a Move and an int
  */
@@ -17,6 +18,13 @@ typedef struct moveScorePair
     Move move;
     int score;
 } moveScorePair;
+
+/**
+ * Gets a random legal move.
+ * @param state - The current state of the game.
+ * @return A random legal move.
+ */
+Move getRandomMove(GameState state);
 
 /**
  * Finds the best move from a game state.

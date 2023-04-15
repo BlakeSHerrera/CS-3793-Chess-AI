@@ -10,8 +10,6 @@
 
 #define NUM_PIECES 12
 
-#define NO_PIECE (-1)
-
 #define W_PAWN 0
 #define W_KNIGHT 1
 #define W_BISHOP 2

@@ -15,6 +15,14 @@
 #include <string.h>
 #include <stdio.h>
 
+Move getRandomMove(GameState state) {
+    int n;
+    Move m, *moves = generateLegalMoves(&state, &n);
+    m = moves[rand() % n];
+    free(moves);
+    return m;
+}
+
 int pieceCount(bitmask *b, int curPlayer)
 {
     return sumBits(b[W_PAWN]) + sumBits(b[W_ROOK]) * 5 + sumBits(b[W_KNIGHT]) * 4 + sumBits(b[W_BISHOP]) * 4 + sumBits(b[W_QUEEN]) * 9 + sumBits(b[W_KING]) * 100 ? curPlayer : sumBits(b[B_PAWN]) + sumBits(b[B_ROOK]) * 5 + sumBits(b[B_KNIGHT]) * 4 + sumBits(b[B_BISHOP]) * 4 + sumBits(b[B_QUEEN]) * 9 + sumBits(b[B_KING]) * 100;

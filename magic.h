@@ -10,6 +10,7 @@
 #ifndef MAGIC_H_INCLUDED
 #define MAGIC_H_INCLUDED
 
+// Square is an int, blockers is a bitmask
 #define hashRook(square, blockers) \
     ROOK_TABLE[square][ \
         ROOK_MAGIC_NUMS[square] * \

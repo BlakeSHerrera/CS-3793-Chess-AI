@@ -35,10 +35,15 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="bitboard.h" />
+		<Unit filename="config.h" />
 		<Unit filename="debug.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="debug.h" />
+		<Unit filename="evaluate.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="evaluate.h" />
 		<Unit filename="magic.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -64,6 +69,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="position.h" />
+		<Unit filename="search.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="search.h" />
 		<Unit filename="square.c">
 			<Option compilerVar="CC" />
 		</Unit>
