@@ -6,6 +6,10 @@
  * @date 2023-02-15
  */
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "bitboard.h"
 #include "debug.h"
 #include "move.h"
