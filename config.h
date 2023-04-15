@@ -44,8 +44,6 @@
 #define FUNC1 1
 #define FUNC2 2
 
-extern FILE *f;
-
 extern int searchStrategy, pruning, evaluation, searchDepth,
            forwardPruneN, numThreads;
 
