@@ -101,22 +101,12 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves);
 Move *generateLegalMoves(GameState *state, int *numMoves);
 
 /**
- * This function generates legal states from a given position.
- * More efficient than generating legal moves and subsequently
- * pushing the moves onto the board.
- * @param state - Pointer to the current state.
- * @param numStates - Output variable for the number of states generated.
- * @return A pointer to a dynamically allocated array of game states.
- */
-GameState *generateLegalStates(GameState *state, int *numStates); //TODO
-
-/**
  * This function plays a move on a game state, and returns the new state.
  * The move is not checked for legality.
  * @param state - A pointer to the current state.
  * @param m - The move to play.
  * @return A new state with the move played.
  */
-GameState pushMove(GameState *state, Move m); //TODO
+GameState pushMove(GameState *state, Move m);
 
 #endif // MOVEGEN_H_INCLUDED

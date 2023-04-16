@@ -270,12 +270,14 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
                     // TODO set next EP target square in move?
                 }
             }
-            if(blockers & shiftRight(bmDestination, 1) || (hasEPTarget(*state) &&
-               squareSource != H5 && squareDestination + 1 == getEPTarget(*state))) {
+            if(getFile(squareSource) != 7 &&
+               (blockers & (bmDestination << 1) || (hasEPTarget(*state) &&
+               squareDestination + 1 == getEPTarget(*state)))) {
                 movesMask |= bmDestination << 1;
             }
-            if(blockers & shiftLeft(bmDestination, 1) || (hasEPTarget(*state) &&
-               squareSource != A5 && squareDestination - 1 == getEPTarget(*state))) {
+            if(getFile(squareSource) != 0 &&
+               (blockers & (bmDestination >> 1) || (hasEPTarget(*state) &&
+               squareDestination - 1 == getEPTarget(*state)))) {
                 movesMask |= bmDestination >> 1;
             }
 
@@ -287,6 +289,9 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
                 setDestination(nextMove, squareDestination);
                 setIsEP(nextMove, hasEPTarget(*state) && getEPTarget(*state) == squareDestination);
                 setCapturedPieceType(bmDestination);
+                if(isEP(nextMove)) {
+                    setCapturedPiece(nextMove, B_PAWN);
+                }
                 if(bmSource & RANK_7) {
                     setIsPromotion(nextMove, 1);
                     for(j=W_KNIGHT; j<=W_QUEEN; j++) {
@@ -309,10 +314,12 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
                 setIsCastling(nextMove, 1);
                 if(!(B_CASTLE_K & blockers) && bCanCastleK(*state)) {
                     setDestination(nextMove, G8);
+                    setCapturedPiece(nextMove, NUM_PIECES);
                     moves[i++] = nextMove;
                 }
                 if(!(B_CASTLE_Q & blockers) && bCanCastleQ(*state)) {
-                    setDestination(nextMove, C1);
+                    setDestination(nextMove, C8);
+                    setCapturedPiece(nextMove, NUM_PIECES);
                     moves[i++] = nextMove;
                 }
                 setIsCastling(nextMove, 0);
@@ -331,12 +338,14 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
                     // TODO set next EP target square in move?
                 }
             }
-            if(blockers & shiftRight(bmDestination, 1) || (hasEPTarget(*state) &&
-               squareSource != H4 && squareDestination + 1 == getEPTarget(*state))) {
+            if(getFile(squareSource) != 7 &&
+               (blockers & bmDestination << 1 || (hasEPTarget(*state) &&
+               squareDestination + 1 == getEPTarget(*state)))) {
                 movesMask |= bmDestination << 1;
             }
-            if(blockers & shiftLeft(bmDestination, 1) || (hasEPTarget(*state) &&
-               squareSource != A4 && squareDestination - 1 == getEPTarget(*state))) {
+            if(getFile(squareSource) != 0 &&
+               (blockers & bmDestination >> 1 || (hasEPTarget(*state) &&
+               squareDestination - 1 == getEPTarget(*state)))) {
                 movesMask |= bmDestination >> 1;
             }
 
@@ -348,6 +357,9 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
                 setDestination(nextMove, squareDestination);
                 setIsEP(nextMove, hasEPTarget(*state) && getEPTarget(*state) == squareDestination);
                 setCapturedPieceType(bmDestination);
+                if(isEP(nextMove)) {
+                    setCapturedPiece(nextMove, W_PAWN);
+                }
                 if(bmSource & RANK_2) {
                     setIsPromotion(nextMove, 1);
                     for(j=B_KNIGHT; j<=B_QUEEN; j++) {
@@ -382,19 +394,19 @@ Move *generateLegalMoves(GameState *state, int *numMoves) {
             continue;
         }
         if(isCastling(m)) {
-            #define test(sq, func1, func2) \
-                case sq: \
-                    if(func1(*state, sq) || func2(*state)) { \
+            #define test(sq1, sq2, func1, func2) \
+                case sq1: \
+                    if(func1(*state, sq2) || func2(*state)) { \
                         moves[i--] = moves[--n]; \
                         continue; \
                     } \
                     break;
             // No castling out of or through check
             switch(getDestination(m)) {
-            test(C1, bAttacks, wInCheck);
-            test(F1, bAttacks, wInCheck);
-            test(C8, wAttacks, bInCheck);
-            test(F8, wAttacks, bInCheck);
+            test(C1, D1, bAttacks, wInCheck);
+            test(G1, F1, bAttacks, wInCheck);
+            test(C8, D8, wAttacks, bInCheck);
+            test(G8, F8, wAttacks, bInCheck);
             default:
                 break;
             }

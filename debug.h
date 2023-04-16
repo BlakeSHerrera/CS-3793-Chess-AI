@@ -16,9 +16,48 @@
 #include "position.h"
 #include "move.h"
 
+#define PERFT2_FEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+#define PERFT3_FEN "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -"
+#define PERFT4_FEN "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"
+#define PERFT4_ALT_FEN "r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1 "
+#define PERFT5_FEN "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"
+#define PERFT6_FEN "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"
+
+#define PERFT_NODES 0
+#define PERFT_CAPTURES 1
+#define PERFT_EP 2
+#define PERFT_CASTLES 3
+#define PERFT_PROMOTIONS 4
+#define PERFT_CHECKS 5
+#define PERFT_DISCOVERED_CHECKS 6
+#define PERFT_DOUBLE_CHECKS 7
+#define PERFT_CHECKMATES 8
+
+typedef struct perftResults {
+    unsigned long long int nodes;
+    unsigned long long int captures;
+    unsigned long long int ep;  // Combined with captures
+    unsigned long long int castles;
+    unsigned long long int promotions;
+    unsigned long long int checks;
+    unsigned long long int discoveredChecks;
+    unsigned long long int doubleChecks;
+    unsigned long long int checkmates;
+    unsigned long long int other;
+    double seconds;
+} perftResults;
+
 /* ********************************************************
  * These are helper functions.                            *
  **********************************************************/
+
+/**
+ * Adds two performance test results together.
+ * @param a - The first to add.
+ * @param b - The second to add.
+ * @return The addition of the two results.
+ */
+perftResults addResults(perftResults a, perftResults b);
 
 /**
  * Prints an 8x8 bitmask to stdout. A1 is on the bottom left.
@@ -176,5 +215,26 @@ void testGeneratePseudoLegalMoves();
  * Prints various tests for generating legal moves.
  */
 void testGenerateLegalMoves();
+
+/**
+ * Performs a performance test by generating and counting legal moves
+ * and the associated time taken. Returns a performance test struct,
+ * which includes the number of nodes and time taken to generate.
+ * @param szFen - String representing the current FEN.
+ * @param depth - How many ply to evaluate.
+ * @return A struct of performance test results, which includes
+ * the number of nodes and time taken to generate.
+ */
+perftResults performanceTest(const char *szFen, int depth);
+
+/**
+ * Private function.
+ * Recursive helper to performanceTest.
+ * Returns the number of leaf nodes.
+ * @param state - Current game state.
+ * @param depth - how many ply to evaluate.
+ * @return The number of leaf nodes.
+ */
+perftResults _performanceTest(GameState state, int depth);
 
 #endif // DEBUG_H_INCLUDED
