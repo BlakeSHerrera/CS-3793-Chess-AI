@@ -32,7 +32,6 @@ moveScorePair minMax(GameState curState, int ply, int alpha, int beta, int abPru
     Move *legalMoves = generateLegalMoves(&curState, &numMoves);
     GameState newState;
     moveScorePair pair;
-    char szBuffer[256];
 
     if (nullPrune && (getTurn(curState) ? !wInCheck(curState) : !bInCheck(curState)))
     {
@@ -41,16 +40,6 @@ moveScorePair minMax(GameState curState, int ply, int alpha, int beta, int abPru
         setCapturedPiece(nullMove, 12);
         setMovedPiece(nullMove, 12);
         newState = pushMove(&curState, nullMove);
-        // printf("%d\n", count);count++;
-        // printf("cur player is: %d but next player is %d\n", getTurn(curState), getTurn(newState));
-        // printBitboard(curState.bb);
-        // positionToFen(curState, szBuffer);
-        // printf("%s\n", szBuffer);
-        // // printf("%s", curState.fenInfo);
-        // printBitboard(newState.bb);
-        // positionToFen(newState, szBuffer);
-        // printf("%s\n", szBuffer);
-        // // printf("%s", newState.fenInfo);
         if (ply == 0)
         {
             score = pieceCount(curState.bb, getTurn(curState));
