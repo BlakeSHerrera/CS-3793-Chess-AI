@@ -24,9 +24,11 @@ typedef struct moveScorePair
  * @param alpha - -100000 intitally. Increases with recursive calls
  * @param beta - 100000 intitally. Decreases with recursive calls
  * @param abPrune - flag to enable alpha beta pruning.
+ * @param nullPrune - flag to enable null pruning.
+ * @param forwardPrune - number of nodes to forward prune.
  * @return A moveScorePair containing the best score and best move.
  */
-moveScorePair minMax(GameState curState, int ply, int alpha, int beta, int abPrune);
+moveScorePair minMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune);
 
 /**
  * Counts all the pieces for a player.

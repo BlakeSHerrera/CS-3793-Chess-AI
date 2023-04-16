@@ -30,24 +30,26 @@ int main(int argc, char **argv)
     Move *legalMoves = generateLegalMoves(&currentState, &numMoves);
     int curPlayer;
     Move bestMove;
-    // replace with inCheckmate
-    while (!wInCheck(currentState) && !bInCheck(currentState))
-    // while(1)
-    {
 
+    while (numMoves && !is50MoveRule(currentState))
+    {
         curPlayer = getTurn(currentState);
         printf("curPlayer: %d\n", curPlayer);
-        bestMove = minMax(currentState, 4, -100000, 100000, 1).move;
-        printf("score is %d\n", minMax(currentState, 4, -100000, 100000, 1).score);
+        bestMove = minMax(currentState, 3, -100000, 100000, 1, 1, 0).move;
+        printf("score is %d\n", minMax(currentState, 3, -100000, 100000, 1, 1, 0).score);
         currentState = pushMove(&currentState, bestMove);
         printBitboard(currentState.bb);
+        legalMoves = generateLegalMoves(&currentState, &numMoves);
     }
-
-    if (wInCheck(currentState))
+    if (is50MoveRule(currentState))
+    {
+        printf("Draw\n");
+    }
+    else if (wInCheck(currentState))
     {
         printf("Black Won\n");
     }
-    else if (bInCheck(currentState))
+    else
     {
         printf("White Won\n");
     }
