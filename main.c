@@ -28,7 +28,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     srand(clock());
     bitboardInit();
     movegenInit();
@@ -38,15 +39,15 @@ int main(int argc, char **argv) {
     printBitboard(currentState.bb);
     Move *legalMoves = generateLegalMoves(&currentState, &numMoves);
     int curPlayer;
-    Move bestMove;
-
+    moveScoreLeaves bestMoveInfo;
     while (numMoves && !is50MoveRule(currentState))
     {
         curPlayer = getTurn(currentState);
         printf("curPlayer: %d\n", curPlayer);
-        bestMove = minMax(currentState, 3, -100000, 100000, 1, 1, 0).move;
-        printf("score is %d\n", minMax(currentState, 3, -100000, 100000, 1, 1, 0).score);
-        currentState = pushMove(&currentState, bestMove);
+        bestMoveInfo = minMax(currentState, 0, -100000, 100000, 0, 0, 0);
+        printf("score is %d\n", bestMoveInfo.score);
+        currentState = pushMove(&currentState, bestMoveInfo.move);
+        printf("Leaf nodes: %lu\n", bestMoveInfo.leaves);
         printBitboard(currentState.bb);
         legalMoves = generateLegalMoves(&currentState, &numMoves);
     }

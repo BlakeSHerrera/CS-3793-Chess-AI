@@ -15,7 +15,8 @@
 #include <string.h>
 #include <stdio.h>
 
-Move getRandomMove(GameState state) {
+Move getRandomMove(GameState state)
+{
     int n;
     Move m, *moves = generateLegalMoves(&state, &n);
     m = moves[rand() % n];
@@ -28,18 +29,24 @@ int pieceCount(bitmask *b, int curPlayer)
     int whiteCount = sumBits(b[W_PAWN]) + sumBits(b[W_ROOK]) * 5 + sumBits(b[W_KNIGHT]) * 4 + sumBits(b[W_BISHOP]) * 4 + sumBits(b[W_QUEEN]) * 9 + sumBits(b[W_KING]) * 100;
     int blackCount = sumBits(b[B_PAWN]) + sumBits(b[B_ROOK]) * 5 + sumBits(b[B_KNIGHT]) * 4 + sumBits(b[B_BISHOP]) * 4 + sumBits(b[B_QUEEN]) * 9 + sumBits(b[B_KING]) * 100;
     return curPlayer ? whiteCount - blackCount : blackCount - whiteCount;
+    // return curPlayer ? whiteCount : blackCount;
 }
 
-moveScorePair minMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune)
+moveScoreLeaves minMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune)
 {
-    int count = 0;
     int bestScore = -10000;
     int score;
     int numMoves, moveCounter;
     Move bestMove = -1, nullMove = 0;
     Move *legalMoves = generateLegalMoves(&curState, &numMoves);
     GameState newState;
-    moveScorePair pair;
+    moveScoreLeaves finalMoveInfo, temp;
+    finalMoveInfo.leaves = 0, temp.leaves = 0;
+
+    if (!ply)
+    {
+        finalMoveInfo.leaves = numMoves + nullPrune - (numMoves > forwardPrune ? forwardPrune : 0);
+    }
 
     if (nullPrune && (getTurn(curState) ? !wInCheck(curState) : !bInCheck(curState)))
     {
@@ -54,7 +61,9 @@ moveScorePair minMax(GameState curState, int ply, int alpha, int beta, int abPru
         }
         else
         {
-            score = -minMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune).score;
+            temp = minMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune);
+            finalMoveInfo.leaves += temp.leaves;
+            score = -temp.score;
         }
         bestScore = score;
         bestMove = nullMove;
@@ -68,7 +77,7 @@ moveScorePair minMax(GameState curState, int ply, int alpha, int beta, int abPru
             int max_idx = i;
             for (int j = i + 1; j < numMoves; j++)
             {
-                if (pieceCount(pushMove(&curState, legalMoves[j]).bb, 1 - getTurn(curState)) >= pieceCount(pushMove(&curState, legalMoves[max_idx]).bb, 1 - getTurn(curState)))
+                if (pieceCount(pushMove(&curState, legalMoves[j]).bb, 1 - getTurn(curState)) > pieceCount(pushMove(&curState, legalMoves[max_idx]).bb, 1 - getTurn(curState)))
                 {
                     max_idx = j;
                 }
@@ -89,9 +98,10 @@ moveScorePair minMax(GameState curState, int ply, int alpha, int beta, int abPru
         }
         else
         {
-
             // get score from recursive call
-            score = -minMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune).score;
+            temp = minMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune);
+            finalMoveInfo.leaves += temp.leaves;
+            score = -temp.score;
         }
         if (bestScore == -10000 || score > bestScore)
         {
@@ -112,25 +122,29 @@ moveScorePair minMax(GameState curState, int ply, int alpha, int beta, int abPru
         }
         if (beta <= alpha)
         {
-            pair.move = bestMove;
-            pair.score = bestScore;
-            return pair;
+            finalMoveInfo.move = bestMove;
+            finalMoveInfo.score = bestScore;
+            return finalMoveInfo;
         }
     }
     free(legalMoves);
     if (bestMove != -1)
     {
-        pair.move = bestMove;
-        pair.score = bestScore;
+        finalMoveInfo.move = bestMove;
+        finalMoveInfo.score = bestScore;
     }
     else
     {
-        pair.move = -1;
-        pair.score = -10000;
+        finalMoveInfo.move = -1;
+        finalMoveInfo.score = -10000;
     }
-    if (nullPrune && nullMove == pair.move)
+    // if the null move was the best move, research without null pruning
+    if (nullPrune && nullMove == finalMoveInfo.move)
     {
-        return minMax(curState, ply, alpha, beta, abPrune, 0, forwardPrune);
+        temp = minMax(curState, ply, alpha, beta, abPrune, 0, forwardPrune);
+        temp.leaves += finalMoveInfo.leaves;
+        return temp;
+        // return minMax(curState, ply, alpha, beta, abPrune, 0, forwardPrune);
     }
-    return pair;
+    return finalMoveInfo;
 }

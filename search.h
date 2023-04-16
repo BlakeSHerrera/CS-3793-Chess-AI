@@ -11,13 +11,17 @@
 #include "move.h"
 #include "position.h"
 
-/* A move score pair has two fields: a Move and an int
+/* A move score leaves struct has three fields:
+ * a Move
+ * the best score for this move (int)
+ * the number of leaves for this move (long)
  */
-typedef struct moveScorePair
+typedef struct moveScoreLeaves
 {
     Move move;
     int score;
-} moveScorePair;
+    unsigned long leaves;
+} moveScoreLeaves;
 
 /**
  * Gets a random legal move.
@@ -36,7 +40,7 @@ Move getRandomMove(GameState state);
  * @param forwardPrune - number of nodes to forward prune.
  * @return A moveScorePair containing the best score and best move.
  */
-moveScorePair minMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune);
+moveScoreLeaves minMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune);
 
 /**
  * Counts all the pieces for a player.
