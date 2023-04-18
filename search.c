@@ -39,7 +39,6 @@ int pieceCount(bitmask *b)
 moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune)
 {
     double bestScore = getTurn(curState) ? -__DBL_MAX__ : __DBL_MAX__;
-    double score = bestScore;
     int numMoves = 0, moveCounter;
     Move bestMove = -1, nullMove = 0;
     GameState newState, originalState = curState;
@@ -61,15 +60,14 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
         newState = pushMove(&curState, nullMove);
         if (ply == 0)
         {
-            score = pieceCount(curState.bb);
+            temp.score = pieceCount(curState.bb);
         }
         else
         {
             temp = miniMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune);
             finalMoveInfo.leaves += temp.leaves;
-            score = temp.score;
         }
-        bestScore = score;
+        bestScore = temp.score;
         bestMove = nullMove;
     }
 
@@ -98,18 +96,17 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
         newState = pushMove(&curState, legalMoves[moveCounter]);
         if (ply == 0)
         {
-            score = pieceCount(newState.bb);
+            temp.score = pieceCount(newState.bb);
         }
         else
         {
             // get score from recursive call
             temp = miniMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune);
             finalMoveInfo.leaves += temp.leaves;
-            score = temp.score;
         }
-        if (((bestScore == -__DBL_MAX__ || score > bestScore) && getTurn(curState)) || ((bestScore == __DBL_MAX__ || score < bestScore) && !getTurn(curState)))
+        if (((bestScore == -__DBL_MAX__ || temp.score > bestScore) && getTurn(curState)) || ((bestScore == __DBL_MAX__ || temp.score < bestScore) && !getTurn(curState)))
         {
-            bestScore = score;
+            bestScore = temp.score;
             bestMove = legalMoves[moveCounter];
         }
         if (!abPrune)
@@ -118,11 +115,11 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
         }
         if (getTurn(newState))
         {
-            alpha = alpha > score ? alpha : score;
+            alpha = alpha > temp.score ? alpha : temp.score;
         }
         else
         {
-            beta = beta < score ? beta : score;
+            beta = beta < temp.score ? beta : temp.score;
         }
         if (beta <= alpha)
         {
