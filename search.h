@@ -13,13 +13,13 @@
 
 /* A move score leaves struct has three fields:
  * a Move
- * the best score for this move (int)
+ * the best score for this move (double)
  * the number of leaves for this move (long)
  */
 typedef struct moveScoreLeaves
 {
     Move move;
-    int score;
+    double score;
     unsigned long leaves;
 } moveScoreLeaves;
 
@@ -40,14 +40,13 @@ Move getRandomMove(GameState state);
  * @param forwardPrune - number of nodes to forward prune.
  * @return A moveScorePair containing the best score and best move.
  */
-moveScoreLeaves minMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune);
+moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune);
 
 /**
  * Counts all the pieces for a player.
  * @param b - the bitmask array representing the game board.
- * @param curPlayer - The player whose pieces will be counted
  * @return A the total count of all the pieces of one player.
  */
-int pieceCount(bitmask *b, int curPlayer);
+int pieceCount(bitmask *b);
 
 #endif // SQUARE_H_INCLUDED
