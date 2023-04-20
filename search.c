@@ -24,14 +24,14 @@ Move getRandomMove(GameState state)
     return m;
 }
 
-int pieceCount(bitmask *b)
+int pieceCount(GameState *g)
 {
     int i;
     double score = 0;
     double weights[NUM_PIECES] = {1, 3, 3, 5, 9, 200, -1, -3, -3, -5, -9, -200};
     for (i = 0; i < NUM_PIECES; i++)
     {
-        score += sumBits(b[i]) * weights[i];
+        score += sumBits(g->bb[i]) * weights[i];
     }
     return score;
 }
@@ -41,7 +41,7 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
     double bestScore = getTurn(curState) ? -__DBL_MAX__ : __DBL_MAX__;
     int numMoves = 0, moveCounter;
     Move bestMove = -1, nullMove = 0;
-    GameState newState, originalState = curState;
+    GameState newState, originalState = curState, tempMove[2];
     Move *legalMoves = generateLegalMoves(&curState, &numMoves);
     moveScoreLeaves finalMoveInfo, temp;
     finalMoveInfo.leaves = 0, temp.leaves = 0;
@@ -49,6 +49,21 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
     if (!ply)
     {
         finalMoveInfo.leaves = numMoves + nullPrune - (numMoves > forwardPrune ? forwardPrune : 0);
+    }
+
+    if (numMoves == 0)
+    {
+        finalMoveInfo.move = bestMove;
+        finalMoveInfo.leaves = 0;
+        if (getTurn(curState) ? wInCheck(curState) : bInCheck(curState))
+        {
+            finalMoveInfo.score = bestScore;
+        }
+        else
+        {
+            finalMoveInfo.score = 0;
+        }
+        return finalMoveInfo;
     }
 
     if (nullPrune && (getTurn(curState) ? !wInCheck(curState) : !bInCheck(curState)))
@@ -60,14 +75,14 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
         newState = pushMove(&curState, nullMove);
         if (ply == 0)
         {
-            temp.score = pieceCount(curState.bb);
+            temp.score = pieceCount(&curState);
         }
         else
         {
             temp = miniMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune);
             finalMoveInfo.leaves += temp.leaves;
         }
-        bestScore = temp.score;
+        bestScore = temp.score; // set alpha if white, beta if black ...
         bestMove = nullMove;
     }
 
@@ -79,7 +94,9 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
             int max_idx = i;
             for (int j = i + 1; j < numMoves; j++)
             {
-                if (pieceCount(pushMove(&curState, legalMoves[j]).bb) > pieceCount(pushMove(&curState, legalMoves[max_idx]).bb))
+                tempMove[0] = pushMove(&curState, legalMoves[j]);
+                tempMove[1] = pushMove(&curState, legalMoves[max_idx]);
+                if (pieceCount(tempMove) > pieceCount(tempMove + 1))
                 {
                     max_idx = j;
                 }
@@ -96,13 +113,20 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
         newState = pushMove(&curState, legalMoves[moveCounter]);
         if (ply == 0)
         {
-            temp.score = pieceCount(newState.bb);
+            temp.score = pieceCount(&newState);
         }
         else
         {
             // get score from recursive call
             temp = miniMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune);
             finalMoveInfo.leaves += temp.leaves;
+            // if other player will be put in check, take this path
+            if (temp.move == -1)
+            {
+                finalMoveInfo.move = legalMoves[moveCounter];
+                finalMoveInfo.score = temp.score;
+                return finalMoveInfo;
+            }
         }
         if (((bestScore == -__DBL_MAX__ || temp.score > bestScore) && getTurn(curState)) || ((bestScore == __DBL_MAX__ || temp.score < bestScore) && !getTurn(curState)))
         {

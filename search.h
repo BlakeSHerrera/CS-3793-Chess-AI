@@ -44,9 +44,9 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
 
 /**
  * Counts all the pieces for a player.
- * @param b - the bitmask array representing the game board.
+ * @param g - the game state holding info about the game board.
  * @return A the total count of all the pieces of one player.
  */
-int pieceCount(bitmask *b);
+int pieceCount(GameState *g);
 
-#endif // SQUARE_H_INCLUDED
+#endif // SEARCH_H_INCLUDED
