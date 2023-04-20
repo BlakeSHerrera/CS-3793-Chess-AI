@@ -38,15 +38,16 @@ Move getRandomMove(GameState state);
  * @param abPrune - flag to enable alpha beta pruning.
  * @param nullPrune - flag to enable null pruning.
  * @param forwardPrune - number of nodes to forward prune.
+ * @param eval - the evaluation function used to determine the best move
  * @return A moveScorePair containing the best score and best move.
  */
-moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune);
+moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune, double (*eval)(GameState*));
 
 /**
  * Counts all the pieces for a player.
  * @param g - the game state holding info about the game board.
  * @return A the total count of all the pieces of one player.
  */
-int pieceCount(GameState *g);
+double pieceCount(GameState *g);
 
 #endif // SEARCH_H_INCLUDED

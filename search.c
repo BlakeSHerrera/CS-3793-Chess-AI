@@ -24,7 +24,7 @@ Move getRandomMove(GameState state)
     return m;
 }
 
-int pieceCount(GameState *g)
+double pieceCount(GameState *g)
 {
     int i;
     double score = 0;
@@ -36,7 +36,7 @@ int pieceCount(GameState *g)
     return score;
 }
 
-moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune)
+moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int abPrune, int nullPrune, int forwardPrune, double (*eval)(GameState*))
 {
     double bestScore = getTurn(curState) ? -__DBL_MAX__ : __DBL_MAX__;
     int numMoves = 0, moveCounter;
@@ -75,11 +75,11 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
         newState = pushMove(&curState, nullMove);
         if (ply == 0)
         {
-            temp.score = pieceCount(&curState);
+            temp.score = (*eval)(&curState);
         }
         else
         {
-            temp = miniMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune);
+            temp = miniMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune, pieceCount);
             finalMoveInfo.leaves += temp.leaves;
         }
         bestScore = temp.score; // set alpha if white, beta if black ...
@@ -96,7 +96,7 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
             {
                 tempMove[0] = pushMove(&curState, legalMoves[j]);
                 tempMove[1] = pushMove(&curState, legalMoves[max_idx]);
-                if (pieceCount(tempMove) > pieceCount(tempMove + 1))
+                if ((*eval)(tempMove) > (*eval)(tempMove + 1))
                 {
                     max_idx = j;
                 }
@@ -113,12 +113,12 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
         newState = pushMove(&curState, legalMoves[moveCounter]);
         if (ply == 0)
         {
-            temp.score = pieceCount(&newState);
+            temp.score = (*eval)(&newState);
         }
         else
         {
             // get score from recursive call
-            temp = miniMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune);
+            temp = miniMax(newState, ply - 1, alpha, beta, abPrune, nullPrune, forwardPrune, pieceCount);
             finalMoveInfo.leaves += temp.leaves;
             // if other player will be put in check, take this path
             if (temp.move == -1)
@@ -167,7 +167,7 @@ moveScoreLeaves miniMax(GameState curState, int ply, int alpha, int beta, int ab
     // if the null move was the best move, research without null pruning
     if (nullPrune && nullMove == finalMoveInfo.move)
     {
-        temp = miniMax(originalState, ply, alpha, beta, abPrune, 0, forwardPrune);
+        temp = miniMax(originalState, ply, alpha, beta, abPrune, 0, forwardPrune, pieceCount);
         temp.leaves += finalMoveInfo.leaves;
         return temp;
     }
