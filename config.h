@@ -20,6 +20,7 @@
  * Other options:
  * forwardPruneN - forward pruning value
  * numThreads - number of threads
+ * timeUseFraction - maxmimum fraction of time to spend on move evaluation
  *
  * @author Blake Herrera
  * @date 2023-04-13
@@ -27,8 +28,6 @@
 
 #ifndef CONFIG_H_INCLUDED
 #define CONFIG_H_INCLUDED
-
-#include <stdio.h>
 
 #define RANDOM_MOVES 0
 #define MINIMAX 1
@@ -44,7 +43,8 @@
 #define FUNC1 1
 #define FUNC2 2
 
-extern int searchStrategy, pruning, evaluation, searchDepth,
+extern int searchStrategy, pruning, evaluation, maxSearchDepth,
            forwardPruneN, numThreads;
+extern double timeUseFraction;
 
 #endif // CONFIG_H_INCLUDED

@@ -9,8 +9,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <config.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <float.h>
+#include <math.h>
+#include <time.h>
 
 #include "bitboard.h"
 #include "debug.h"
@@ -22,14 +25,41 @@
 #include "uci.h"
 #include "search.h"
 #include "evaluate.h"
+#include "config.h"
 
-// Theoretically longest game is a bit less than 6000 moves
+#ifdef _WIN32
+//  For Windows (32- and 64-bit)
+#   include <windows.h>
+#   define SLEEP(msecs) Sleep(msecs)
+#elif __unix
+//  For linux, OSX, and other unixes
+#   define _POSIX_C_SOURCE 199309L // or greater
+#   include <time.h>
+#   define SLEEP(msecs) do {            \
+        struct timespec ts;             \
+        ts.tv_sec = msecs/1000;         \
+        ts.tv_nsec = msecs%1000*1000;   \
+        nanosleep(&ts, NULL);           \
+        } while (0)
+#else
+#   error "Unknown system"
+#endif
+
+// From config.h
+int searchStrategy, pruning, evaluation, forwardPruneN, numThreads,
+    maxSearchDepth;
+double timeUseFraction;
+
+// UCI specific
 static char szBuffer[6000 * 6];
 static GameState state;
-static int wTime, bTime, wInc, bInc, movesToGo, bestMove, maxSearchDepth,
-    isReady;
+static int wTime, bTime, wInc, bInc, movesToGo, isReady;
 
-int searchStrategy, pruning, evaluation, forwardPruneN, numThreads;
+// Thread and shared data management
+static Move principalVariation;
+static pthread_t timeKeeper, searchMaster;
+static pthread_mutex_t manageThreads;
+static pthread_cond_t readyToSubmit;
 
 void uciCommunicate() {
     typedef struct pair {
@@ -68,15 +98,18 @@ void uciCommunicate() {
 }
 
 void uciBoot() {
+    pthread_mutex_init(&manageThreads, NULL);
+    pthread_cond_init(&readyToSubmit, NULL);
+
     printf("id name %s v%s\nid author %s\n\n"
+           "option name searchStrategy type spin default 1 min 0 max 2\n"
+           "option name pruning type spin default 1 min 0 max 7\n"
+           "option name evaluation type spin default 0 min 0 max 1\n"
+           "option name maxSearchDepth type spin default 99 min 1 max 99\n"
+           "option name forwardPruneN type spin default 999 min 1 max 999\n"
            "option name numThreads type spin default 1 min 1 max 512\n"
+           "option name timeUseFraction type "
            "uciok\n", ENGINE_NAME, VERSION, AUTHORS);
-    // TODO add options
-    searchStrategy = 0;
-    pruning = 0;
-    evaluation = 0;
-    forwardPruneN = 999;
-    numThreads = 1;
 }
 
 void uciDebug() {
@@ -96,29 +129,35 @@ void uciIsReady() {
 void uciSetOption() {
     // TODO not implemented
     #define next() strtok(NULL, " ")
+    #define is(s) !strcmp(szBuffer, s)
     next();  // "name"
-    if(!strcmp(next(), "searchStrategy")) {
+    next();  // option name
+    if(is("searchStrategy")) {
         next();  // "value"
         searchStrategy = atoi(next());
-    } else if(!strcmp(szBuffer, "pruning")) {
+    } else if(is("pruning")) {
         next();  // "value"
         pruning = atoi(next());
-    } else if(!strcmp(szBuffer, "evaluation")) {
+    } else if(is("evaluation")) {
         next();  // "value"
         evaluation = atoi(next());
-    } else if(!strcmp(szBuffer, "numThreads")) {
+    } else if(is("numThreads")) {
         next();  // "value"
         numThreads = atoi(next());
-    } else if(!strcmp(szBuffer, "forwardPruneN")) {
+    } else if(is("forwardPruneN")) {
         next();  // "value"
         forwardPruneN = atoi(next());
+    } else if(is("timeUseFraction")) {
+        next();  // "value"
+        timeUseFraction = atof(next());
     } // else unknown option - ignore
     #undef next
+    #undef is
 }
 
 void uciRegister() {
     printf("register later\n");
-    // TODO look up registration?
+    // TODO look up what is registration?
 }
 
 void uciNewGame() {
@@ -150,9 +189,7 @@ void uciPosition() {
 }
 
 void uciStop() {
-    // TODO threading
-    toLAN(bestMove, szBuffer);
-    printf("bestmove %s\n", szBuffer);
+    pthread_cond_broadcast(&readyToSubmit);
 }
 
 void uciPonderHit() {
@@ -165,15 +202,16 @@ void uciQuit() {
 }
 
 void uciGo() {
+    char *token;
     int addSearchMoves = 0;
     if(!isReady) {
         return;
     }
     // TODO
-    #define is(x) !strcmp(szBuffer, x)
+    #define is(x) !strcmp(token, x)
     #define next() strtok(NULL, " ")
     #define nextInt() atoi(next())
-    while(next() != NULL) {
+    for(token = next(); token != NULL; token = next()) {
         if(is("wtime")) {
             wTime = nextInt();
         } else if(is("btime")) {
@@ -207,13 +245,74 @@ void uciGo() {
     #undef next
     #undef nextInt
 
-    // Do search
-    //position fen rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-    if(searchStrategy == RANDOM_MOVES) {
-        bestMove = getRandomMove(state);
-        toLAN(bestMove, szBuffer);
-        printf("bestmove %s\n", szBuffer);
-    } else if(searchStrategy == MINIMAX) {
-        // TODO
+    if(pthread_create(&timeKeeper, NULL, &timeKeepStart, NULL)) {
+        fprintf(stderr, "Error on pthread_create timeKeeper\n");
+        exit(1);
     }
+}
+
+void *timeKeepStart(void *params) {
+    char szMoveString[6];
+    double msSleepTime = (getTurn(state) ? wTime : bTime) * timeUseFraction;
+    struct timespec finalTime;
+    struct timespec now;
+
+    // Get time and calculate sleep time
+    if(clock_gettime(CLOCK_REALTIME, &now)) {
+        fprintf(stderr, "Error on getting time\n");
+        exit(1);
+    }
+    finalTime.tv_sec = now.tv_sec + msSleepTime / 1000;
+    finalTime.tv_nsec = now.tv_nsec + fmod(msSleepTime, 1000) * 1000;
+
+    // Sleep / wait for signal to submit move
+    pthread_mutex_lock(&manageThreads);
+    if(pthread_create(&searchMaster, NULL, &threadStartSearch, NULL)) {
+        fprintf(stderr, "Error on pthread_create searchMaster\n");
+        exit(1);
+    }
+    pthread_cond_timedwait(&readyToSubmit, &manageThreads, &finalTime);
+
+    // kill search, submit move on wake
+    pthread_cancel(searchMaster);
+    toLAN(principalVariation, szMoveString);
+    printf("bestmove %s\n", szMoveString);
+    fflush(stdout);
+
+    pthread_mutex_unlock(&manageThreads);
+    return NULL;
+}
+
+void *threadStartSearch(void *params) {
+    int i;
+    moveScorePair msp;
+
+    switch(searchStrategy) {
+    case RANDOM_MOVES:
+        pthread_mutex_lock(&manageThreads);
+        principalVariation = getRandomMove(state);
+        pthread_mutex_unlock(&manageThreads);
+        break;
+    case MINIMAX:
+        printf("minimax searching\n");
+        for(i=1; i<99; i++) {
+            msp = minMax(state, i, -DBL_MAX, DBL_MAX, pruning & AB_PRUNING);
+            pthread_mutex_lock(&manageThreads);
+            principalVariation = msp.move;
+            pthread_mutex_unlock(&manageThreads);
+        }
+        break;
+    case MINIMAX_QUIESCENCE:
+        // TODO
+        fprintf(stderr, "Quiescence search not implemented\n");
+        exit(1);
+        break;
+    default:
+        fprintf(stderr, "Unknown search strategy: %d\n", searchStrategy);
+        exit(1);
+        break;
+    }
+
+    pthread_cond_broadcast(&readyToSubmit);
+    return NULL;
 }

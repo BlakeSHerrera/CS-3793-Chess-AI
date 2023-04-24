@@ -3,6 +3,7 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="CS-3793-Chess-AI" />
+		<Option makefile="makefile" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
@@ -31,6 +32,11 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Linker>
+			<Add option="-static" />
+			<Add option="-static-libgcc" />
+			<Add option="-static-libstdc++" />
+		</Linker>
 		<Unit filename="bitboard.c">
 			<Option compilerVar="CC" />
 		</Unit>

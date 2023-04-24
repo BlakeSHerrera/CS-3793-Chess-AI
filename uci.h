@@ -2,6 +2,12 @@
  * uci.h contains all relevant functions for communicating with the
  * Universal Chess Interface (UCI) protocol, used by modern chess
  * applications.
+ *
+ * Because the UCI protocol requires the engine to simultaneously
+ * be able to search for the move and process input (such as
+ * immediately stopping and returning the best move), uci.c also
+ * handles the management of threads, shared data, and time strategies.
+ *
  * @author Blake Herrera
  * @date 2023-02-15
  * @see https://www.wbec-ridderkerk.nl/html/UCIProtocol.html
@@ -86,5 +92,28 @@ void uciQuit();
  * other options may be passed in the input line.
  */
 void uciGo();
+
+/**
+ * timeKeepStart is an entry point for the pthread which sleeps
+ * until the engine has used enough time. It then submits the current
+ * best move and kills the search thread and itself.
+ * This function has no input and no output.
+ */
+void *timeKeepStart(void *params);
+
+/**
+ * threadStartSearch is an entry point for the pthread which
+ * begins the iterative deepening search. This thread should be woken
+ * up by the time keeping thread (unless the end of the game is found,
+ * in which case it submits the best move and kills both threads).
+ * This function has no input and no output.
+ */
+void *threadStartSearch(void *params);
+
+/**
+ * submitMove coordinates access for submitting a move in the event
+ * that multiple threads try to submit a move.
+ */
+void submitMove();
 
 #endif // UCI_H_INCLUDED
