@@ -467,44 +467,43 @@ int _testMagicBishop(Square bishopSquare, bitmask bm, int i) {
  **********************************************************/
 
 void testGeneratePseudoLegalMoves() {
-    #define test(s) \
-        state = positionFromFen(s); \
-        moves = generatePseudoLegalMoves(&state, &numMoves); \
-        printf("Num moves: %d\n", numMoves); \
-        for(i=0; i<numMoves; i++) { \
-            printMove(moves[i]); \
-            printMoveVerbose(state, moves[i]); \
-        }
+    Move moveBuffer[MAX_MOVES];
     int numMoves, i;
     GameState state;
-    Move *moves;
-    //test(START_FEN);
-    //test(PERFT2_FEN);
+    #define test(s) \
+        state = positionFromFen(s); \
+        generatePseudoLegalMoves(&state, moveBuffer, &numMoves); \
+        printf("Num moves: %d\n", numMoves); \
+        for(i=0; i<numMoves; i++) { \
+            printMove(moveBuffer[i]); \
+            printMoveVerbose(state, moveBuffer[i]); \
+        }
+    test(START_FEN);
+    test(PERFT2_FEN);
     test(PERFT3_FEN);
-    //test(PERFT4_FEN);
-    //test(PERFT4_ALT_FEN);
-    //test(PERFT5_FEN);
-    //test(PERFT6_FEN);
-    free(moves);
+    test(PERFT4_FEN);
+    test(PERFT4_ALT_FEN);
+    test(PERFT5_FEN);
+    test(PERFT6_FEN);
     #undef test
 }
 
 void testGenerateLegalMoves() {
+    Move moveBuffer[MAX_MOVES];
+    int numMoves, i;
+    GameState state;
     #define test(s, verbose) \
         printf("Testing FEN: %s\n", s); \
         state = positionFromFen(s); \
-        moves = generateLegalMoves(&state, &numMoves); \
+        generateLegalMoves(&state, moveBuffer, &numMoves); \
         printf("Num moves: %d\n", numMoves); \
         if(verbose) { \
             for(i=0; i<numMoves; i++) { \
-                printMove(moves[i]); \
-                printMoveVerbose(state, moves[i]); \
+                printMove(moveBuffer[i]); \
+                printMoveVerbose(state, moveBuffer[i]); \
             } \
         } \
         printf("\n");
-    int numMoves, i;
-    GameState state;
-    Move *moves;
     test(START_FEN, 0);
     test(PERFT2_FEN, 0);
     test(PERFT3_FEN, 0);
@@ -512,7 +511,6 @@ void testGenerateLegalMoves() {
     test(PERFT4_ALT_FEN, 0);
     test(PERFT5_FEN, 0);
     test(PERFT6_FEN, 0);
-    free(moves);
     #undef test
 }
 
@@ -529,33 +527,33 @@ perftResults performanceTest(const char *szFen, int depth) {
 perftResults _performanceTest(GameState state, int depth) {
     int numMoves, i;
     perftResults res, accumulator = {0};
+    Move moveBuffer[MAX_MOVES];
     if(depth <= 0) {
         accumulator.nodes = 1;
         return accumulator;
     }
-    Move *moves = generateLegalMoves(&state, &numMoves);
+    generateLegalMoves(&state, moveBuffer, &numMoves);
     positionToFen(state, buffer);
     for(i=0; i<numMoves; i++) {
         if(depth == 1) {
-            if(isEP(moves[i])) {
+            if(isEP(moveBuffer[i])) {
                 accumulator.ep++;
                 accumulator.captures++;
-            } else if(getCapturedPiece(moves[i]) < NUM_PIECES) {
+            } else if(getCapturedPiece(moveBuffer[i]) < NUM_PIECES) {
                 accumulator.captures++;
-            } else if(isCastling(moves[i])) {
+            } else if(isCastling(moveBuffer[i])) {
                 accumulator.castles++;
             } else {
                 accumulator.other++;
             }
-            if(isPromotion(moves[i])) {
+            if(isPromotion(moveBuffer[i])) {
                 accumulator.promotions++;
             }
             accumulator.nodes++;
         } else {
-            res = _performanceTest(pushMove(&state, moves[i]), depth - 1);
+            res = _performanceTest(pushMove(&state, moveBuffer[i]), depth - 1);
             add(&accumulator, &res);
         }
     }
-    free(moves);
     return accumulator;
 }

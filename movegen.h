@@ -87,18 +87,18 @@ bitmask _calculateBishopMoves(Square square, bitmask blockers);
  * That is, the moves obey the rules for move generation, but are not
  * checked for legality (if the king is in check).
  * @param state - Pointer to the current state.
+ * @param moveBuffer - Output buffer array for the list of moves.
  * @param numMoves - Output variable for the number of moves generated.
- * @return A pointer to a dynamically allocated array of moves.
  */
-Move *generatePseudoLegalMoves(GameState *state, int *numMoves);
+void generatePseudoLegalMoves(GameState *state, Move moveBuffer[MAX_MOVES], int *numMoves);
 
 /**
  * This function generates legal moves from a given position.
  * @param state - Pointer to the current state.
+ * @param moveBuffer - Output buffer array for the list of moves.
  * @param numMoves - Output variable for the number of moves generated.
- * @return A pointer to a dynamically allocated array of moves.
  */
-Move *generateLegalMoves(GameState *state, int *numMoves);
+void generateLegalMoves(GameState *state, Move moveBuffer[MAX_MOVES], int *numMoves);
 
 /**
  * This function plays a move on a game state, and returns the new state.

@@ -172,15 +172,11 @@ bitmask _calculateBishopMoves(Square square, bitmask blockers) {
     return attacks;
 }
 
-Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
+void generatePseudoLegalMoves(GameState *state, Move moveBuffer[MAX_MOVES], int *numMoves) {
     int i=0, j, turn, squareSource, squareDestination;
     bitmask movesMask, piecesMask, blockers, bmSource, bmDestination;
     Move nextMove;
-    Move *moves = malloc(sizeof(Move) * MAX_MOVES);
-    if(moves == NULL) {
-        fprintf(stderr, "Error when mallocing moves.\n");
-        exit(1);
-    }
+
     blockers = state->bb[BLOCKERS];
     turn = getTurn(*state);
 
@@ -196,7 +192,7 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
             bmDestination = 1ULL << squareDestination; \
             setDestination(nextMove, squareDestination); \
             setCapturedPieceType(bmDestination); \
-            moves[i++] = nextMove; \
+            moveBuffer[i++] = nextMove; \
         }
 
     #define setCapturedPieceType(bmDest) \
@@ -248,11 +244,11 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
                 setIsCastling(nextMove, 1);
                 if(!(W_CASTLE_K & blockers) && wCanCastleK(*state)) {
                     setDestination(nextMove, G1);
-                    moves[i++] = nextMove;
+                    moveBuffer[i++] = nextMove;
                 }
                 if(!(W_CASTLE_Q & blockers) && wCanCastleQ(*state)) {
                     setDestination(nextMove, C1);
-                    moves[i++] = nextMove;
+                    moveBuffer[i++] = nextMove;
                 }
                 setIsCastling(nextMove, 0);
             }
@@ -296,11 +292,11 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
                     setIsPromotion(nextMove, 1);
                     for(j=W_KNIGHT; j<=W_QUEEN; j++) {
                         setPromotionPiece(nextMove, j);
-                        moves[i++] = nextMove;
+                        moveBuffer[i++] = nextMove;
                     }
                     setIsPromotion(nextMove, 0);
                 } else {
-                    moves[i++] = nextMove;
+                    moveBuffer[i++] = nextMove;
                 }
             }
         }
@@ -315,12 +311,12 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
                 if(!(B_CASTLE_K & blockers) && bCanCastleK(*state)) {
                     setDestination(nextMove, G8);
                     setCapturedPiece(nextMove, NUM_PIECES);
-                    moves[i++] = nextMove;
+                    moveBuffer[i++] = nextMove;
                 }
                 if(!(B_CASTLE_Q & blockers) && bCanCastleQ(*state)) {
                     setDestination(nextMove, C8);
                     setCapturedPiece(nextMove, NUM_PIECES);
-                    moves[i++] = nextMove;
+                    moveBuffer[i++] = nextMove;
                 }
                 setIsCastling(nextMove, 0);
             }
@@ -364,11 +360,11 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
                     setIsPromotion(nextMove, 1);
                     for(j=B_KNIGHT; j<=B_QUEEN; j++) {
                         setPromotionPiece(nextMove, j);
-                        moves[i++] = nextMove;
+                        moveBuffer[i++] = nextMove;
                     }
                     setIsPromotion(nextMove, 0);
                 } else {
-                    moves[i++] = nextMove;
+                    moveBuffer[i++] = nextMove;
                 }
             }
         }
@@ -379,25 +375,24 @@ Move *generatePseudoLegalMoves(GameState *state, int *numMoves) {
     #undef setCapturedPieceType
 
     *numMoves = i;
-    return moves;
 }
 
-Move *generateLegalMoves(GameState *state, int *numMoves) {
+void generateLegalMoves(GameState *state, Move moveBuffer[MAX_MOVES], int *numMoves) {
     int i, n, m;
     GameState nextState;
-    Move *moves = generatePseudoLegalMoves(state, &n);
+    generatePseudoLegalMoves(state, moveBuffer, &n);
     for(i=0; i<n; i++) {
-        m = moves[i];
+        m = moveBuffer[i];
         if(getMovedPiece(m) / 6 == getCapturedPiece(m) / 6) {
             // Same color capture
-            moves[i--] = moves[--n];
+            moveBuffer[i--] = moveBuffer[--n];
             continue;
         }
         if(isCastling(m)) {
             #define test(sq1, sq2, func1, func2) \
                 case sq1: \
                     if(func1(*state, sq2) || func2(*state)) { \
-                        moves[i--] = moves[--n]; \
+                        moveBuffer[i--] = moveBuffer[--n]; \
                         continue; \
                     } \
                     break;
@@ -418,11 +413,10 @@ Move *generateLegalMoves(GameState *state, int *numMoves) {
         if((getTurn(nextState) && bInCheck(nextState)) ||
            (!getTurn(nextState) && wInCheck(nextState))) {
             // player put self in check
-            moves[i--] = moves[--n];
+            moveBuffer[i--] = moveBuffer[--n];
             continue;
         }
     }
     *numMoves = n;
-    return moves;
 }
 
