@@ -14,7 +14,11 @@
 #include "square.h"
 #include "position.h"
 
-#define MAX_MOVES 218
+/* The maximum number of legal moves is 218, but the maximum number
+ * of pseudo-legal moves is higher. It has a hard upper bound of 321.
+ * The true upper bound is not immediately obvious.
+ */
+#define MAX_MOVES 321
 
 /* The relevant occupancy squares are all rays for a piece minus
  * when the ray extends into the opposite edge of the board.

@@ -34,8 +34,6 @@
 		</Compiler>
 		<Linker>
 			<Add option="-static" />
-			<Add option="-static-libgcc" />
-			<Add option="-static-libstdc++" />
 		</Linker>
 		<Unit filename="bitboard.c">
 			<Option compilerVar="CC" />
@@ -46,6 +44,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="debug.h" />
+		<Unit filename="error.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="error.h" />
 		<Unit filename="evaluate.c">
 			<Option compilerVar="CC" />
 		</Unit>

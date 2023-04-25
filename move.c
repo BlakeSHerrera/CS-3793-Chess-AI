@@ -30,6 +30,16 @@ GameState pushMove(GameState *state, Move m) {
 GameState pushMoveVerbose(GameState *state, Square source, Square destination,
         int movedPiece, int capturedPiece, int isEP, int isCastling, int promotion) {
     GameState nextState = *state;
+    if(source == destination) {
+        // null move
+        setTurn(nextState, !getTurn(nextState));
+        nextState.prev = state;
+        setHasEPTarget(nextState, 0);
+        setHalfMoveCounter(nextState, getHalfMoveCounter(nextState) + 1);
+        setFullMoveCounter(nextState,
+            getFullMoveCounter(nextState) + getTurn(nextState));
+        return nextState;
+    }
 
     // Remove source piece, place source piece
     nextState.bb[movedPiece] ^=

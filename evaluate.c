@@ -8,17 +8,37 @@
 #include "evaluate.h"
 #include "piece.h"
 #include "position.h"
+#include "config.h"
+#include "move.h"
+#include "movegen.h"
+#include "debug.h"
+
+#include <stdio.h>
 
 const double simplePieceValues[NUM_PIECES] = {
      1.0,  3.0,  3.0,  5.0,  9.0,  200.0,
     -1.0, -3.0, -3.0, -5.0, -9.0, -200.0
 };
 
-double pieceValueScore(GameState state, double pieceValues[NUM_PIECES]) {
+double pieceValueScore(GameState state, const double pieceValues[NUM_PIECES]) {
     int i;
-    double score;
+    double score = 0;
     for(i=0; i<NUM_PIECES; i++) {
         score += sumBits(state.bb[i]) * pieceValues[i];
     }
-    return i;
+    return score;
+}
+
+double simplePieceValueCount(GameState g) {
+    return pieceValueScore(g, simplePieceValues);
+}
+
+double valueAndMobility(GameState state) {
+    int wMoves, bMoves;
+    Move moveBuffer[MAX_MOVES];
+    setTurn(state, 1);
+    generatePseudoLegalMoves(&state, moveBuffer, &wMoves);
+    setTurn(state, 0);
+    generatePseudoLegalMoves(&state, moveBuffer, &bMoves);
+    return (wMoves - bMoves) * mobilityFactor + simplePieceValueCount(state);
 }

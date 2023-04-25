@@ -20,6 +20,7 @@
  * Other options:
  * forwardPruneN - forward pruning value
  * numThreads - number of threads
+ * mobilityFactor - pawn value of a pseudo-legal move
  * timeUseFraction - maxmimum fraction of time to spend on move evaluation
  *
  * @author Blake Herrera
@@ -28,6 +29,8 @@
 
 #ifndef CONFIG_H_INCLUDED
 #define CONFIG_H_INCLUDED
+
+#include "position.h"
 
 #define RANDOM_MOVES 0
 #define MINIMAX 1
@@ -40,11 +43,11 @@
 #define TRASPOSITION_TABLES 8
 
 #define PIECE_VALUE_EVAL 0
-#define FUNC1 1
-#define FUNC2 2
+#define VALUE_AND_MOBILITY 1
 
 extern int searchStrategy, pruning, evaluation, maxSearchDepth,
            forwardPruneN, numThreads;
-extern double timeUseFraction;
+extern double mobilityFactor, timeUseFraction;
+extern double (*evaluationFunction)(GameState);
 
 #endif // CONFIG_H_INCLUDED

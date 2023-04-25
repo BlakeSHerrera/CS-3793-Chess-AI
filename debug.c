@@ -243,7 +243,7 @@ void testBitmasks() {
 }
 
 void testSumBits() {
-    #define test(e, x) printf("%d %d %s\n", e, sumBits(x), #x);
+    #define test(e, x) printf("%d %d %s\n", e, sumBits(x), #x)
     test(8, FILE_A);
     test(8, FILE_B);
     test(8, RANK_1);

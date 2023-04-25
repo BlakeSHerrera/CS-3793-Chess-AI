@@ -15,15 +15,18 @@
 #include "config.h"
 #include "bitboard.h"
 #include "movegen.h"
+#include "evaluate.h"
 
 int main(int argc, char **argv) {
     int i;
     searchStrategy = MINIMAX;
     pruning = AB_PRUNING;
-    evaluation = PIECE_VALUE_EVAL;
+    evaluation = VALUE_AND_MOBILITY;
+    evaluationFunction = valueAndMobility;
     forwardPruneN = 999;
     numThreads = 1;
-    maxSearchDepth = 99;
+    maxSearchDepth = 7;
+    mobilityFactor = 0.1;
     timeUseFraction = 0.05;
 
     #define is(s) !strcmp(argv[i], s)
@@ -34,12 +37,24 @@ int main(int argc, char **argv) {
             pruning = atoi(argv[++i]);
         } else if(is("-evaluation")) {
             evaluation = atoi(argv[++i]);
+            switch(evaluation) {
+            case PIECE_VALUE_EVAL:
+                evaluationFunction = simplePieceValueCount;
+                break;
+            case VALUE_AND_MOBILITY:
+                evaluationFunction = valueAndMobility;
+                break;
+            default:
+                break;
+            }
         } else if(is("-forwardPruneN")) {
             forwardPruneN = atoi(argv[++i]);
         } else if(is("-numThreads")) {
             numThreads = atoi(argv[++i]);
         } else if(is("-maxSearchDepth")) {
             maxSearchDepth = atoi(argv[++i]);
+        } else if(is("-mobilityFactor")) {
+            mobilityFactor = atof(argv[++i]);
         } else if(is("-timeUseFraction")) {
             timeUseFraction = atof(argv[++i]);
         } else {

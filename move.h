@@ -13,6 +13,8 @@
 #include "piece.h"
 #include "position.h"
 
+#define NULL_MOVE 0
+
 // TODO optimize operations?
 #define getSource(move) \
     ((move) & 0b111111)
