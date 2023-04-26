@@ -33,12 +33,49 @@ double simplePieceValueCount(GameState g) {
     return pieceValueScore(g, simplePieceValues);
 }
 
-double valueAndMobility(GameState state) {
-    int wMoves, bMoves;
+double valueAndInfluence(GameState state) {
+    int wMoves, bMoves, turn = getTurn(state);
     Move moveBuffer[MAX_MOVES];
+    double mobility;
+
     setTurn(state, 1);
     generatePseudoLegalMoves(&state, moveBuffer, &wMoves);
     setTurn(state, 0);
     generatePseudoLegalMoves(&state, moveBuffer, &bMoves);
-    return (wMoves - bMoves) * mobilityFactor + simplePieceValueCount(state);
+
+
+    // Make the engine prefer to have more moves?
+    #define INITIATIVE 1.00001
+    if(turn) {
+        mobility = wMoves * INITIATIVE - bMoves;
+    } else {
+        mobility = wMoves - bMoves * INITIATIVE;
+    }
+    return simplePieceValueCount(state) + mobility * mobilityFactor;
+    #undef INITIATIVE
+
+    //return (wMoves - bMoves) * mobilityFactor + simplePieceValueCount(state);
+}
+
+double valueAndMobility(GameState state) {
+    int wMoves, bMoves, turn = getTurn(state);
+    Move moveBuffer[MAX_MOVES];
+    double mobility;
+
+    setTurn(state, 1);
+    generateLegalMoves(&state, moveBuffer, &wMoves);
+    setTurn(state, 0);
+    generateLegalMoves(&state, moveBuffer, &bMoves);
+
+    // Make the engine prefer to have more moves?
+    #define INITIATIVE 1.00001
+    if(turn) {
+        mobility = wMoves * INITIATIVE - bMoves;
+    } else {
+        mobility = wMoves - bMoves * INITIATIVE;
+    }
+    return simplePieceValueCount(state) + mobility * mobilityFactor;
+    #undef INITIATIVE
+
+    //return (wMoves - bMoves) * mobilityFactor + simplePieceValueCount(state);
 }

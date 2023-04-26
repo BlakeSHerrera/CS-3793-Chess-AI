@@ -77,9 +77,15 @@ void uciCommunicate() {
         {"go", &uciGo}
     };
     int i;
-    isReady = 0;
 
     printf("CS-3743-AI engine\n");
+    errTrap(pthread_mutex_init(&manageThreads, NULL),
+            "Error on pthread_mutex_init in uciBoot\n");
+    errTrap(pthread_cond_init(&readyToSubmit, NULL),
+            "Error on pthread_cond_init in uciBoot\n");
+    timeKeeper = 0;
+    isReady = 0;
+
     while(1) {
         errTrap(fgets(szBuffer, sizeof(szBuffer), stdin) == NULL,
                 "Error on fgets in uciCommunicate\n");
@@ -98,16 +104,10 @@ void uciCommunicate() {
 }
 
 void uciBoot() {
-    errTrap(pthread_mutex_init(&manageThreads, NULL),
-            "Error on pthread_mutex_init in uciBoot\n");
-    errTrap(pthread_cond_init(&readyToSubmit, NULL),
-            "Error on pthread_cond_init in uciBoot\n");
-    timeKeeper = 0;
-
     printf("id name %s v%s\nid author %s\n\n"
            "option name searchStrategy type spin default 1 min 0 max 2\n"
            "option name pruning type spin default 1 min 0 max 7\n"
-           "option name evaluation type spin default 0 min 0 max 1\n"
+           "option name evaluation type spin default 2 min 0 max 2\n"
            "option name maxSearchDepth type spin default 99 min 1 max 99\n"
            "option name forwardPruneN type spin default 999 min 1 max 999\n"
            "option name numThreads type spin default 1 min 1 max 512\n"
@@ -150,6 +150,12 @@ void uciSetOption() {
         case PIECE_VALUE_EVAL:
             evaluationFunction = simplePieceValueCount;
             break;
+        case VALUE_AND_INFLUENCE:
+            evaluationFunction = valueAndInfluence;
+            break;
+        case VALUE_AND_MOBILITY:
+            evaluationFunction = valueAndMobility;
+            break;
         default:
             break;
         }
@@ -176,12 +182,16 @@ void uciRegister() {
 }
 
 void uciNewGame() {
-    // TODO
+    errTrap(pthread_mutex_init(&manageThreads, NULL),
+            "Error on pthread_mutex_init in uciBoot\n");
+    errTrap(pthread_cond_init(&readyToSubmit, NULL),
+            "Error on pthread_cond_init in uciBoot\n");
 }
 
 void uciPosition() {
     #define next() strtok(NULL, " ")
     char *a, *b, *c, *d, *e, *f;
+    char szFEN[256];
     a = next();
     if(!strcmp(a, "startpos")) {
         state = positionFromFen(START_FEN);
@@ -196,11 +206,14 @@ void uciPosition() {
         // For some reason the calls to strtok are done backwards
         // if put directly in the function call
     }
-    a = next();
+    next();  // "moves"
     for(a=next(); a!=NULL; a=next()) {
         state = pushLAN(&state, a);
     }
     #undef next
+
+    positionToFen(state, szFEN);
+    printf("info fen %s\n", szFEN);
 }
 
 void uciStop() {
@@ -271,16 +284,25 @@ void uciGo() {
 
 void *timeKeepStart(void *params) {
     char szMoveString[6];
-    double msSleepTime = (getTurn(state) ? wTime : bTime) * timeUseFraction;
+    double msSleepTime;
     struct timespec finalTime;
     struct timespec now;
     int r;
 
+    if(getTurn(state)) {
+        msSleepTime = wTime * timeUseFraction + wInc * (1 - timeUseFraction);
+    } else {
+        msSleepTime = bTime * timeUseFraction + bInc * (1 - timeUseFraction);
+    }
+    if(msSleepTime < 0) {
+        msSleepTime = 0;
+    }
+
     // Get time and calculate sleep time
     errTrap(clock_gettime(CLOCK_REALTIME, &now),
             "Error on clock_gettime in timeKeepStart\n");
-    finalTime.tv_sec = now.tv_sec + msSleepTime / 1000;
-    finalTime.tv_nsec = now.tv_nsec + fmod(msSleepTime, 1000) * 1000;
+    finalTime.tv_sec = (time_t) (now.tv_sec + msSleepTime / 1000);
+    finalTime.tv_nsec = (long) (now.tv_nsec + fmod(msSleepTime, 1000) * 1000) % 1000000000;
 
     // Sleep / wait for signal to submit move
     errTrap(pthread_mutex_lock(&manageThreads),
@@ -322,17 +344,18 @@ void *threadStartSearch(void *params) {
                 "Error on pthread_mutex_unlock in threadStartSearch (RANDOM_MOVES)\n");
         break;
     case MINIMAX:
-        for(i=1; i<=maxSearchDepth; i++) {
+        for(i=0; i<=maxSearchDepth; i++) {
             start = clock();
             msp = miniMax(state, i, -DBL_MAX, DBL_MAX, pruning & NULL_PRUNING);
             seconds = (double)(clock() - start + 1) / CLOCKS_PER_SEC;
             errTrap(pthread_mutex_lock(&manageThreads),
                     "Error on pthread_mutex_lock in threadStartSearch (MINIMAX)\n");
-            //principalVariation = 100664588; // Look here
             principalVariation = msp.move;
             toLAN(msp.move, temp);
             printf("info depth %d nodes %lu time %d nps %d score cp %d pv %s\n",
                    i, msp.leaves, (int)seconds / 1000, (int)(msp.leaves / seconds), (int)(msp.score * 100), temp);
+            errTrap(fflush(stdout),
+                    "Error in fflush stdout in threadStartSearch\n");
             errTrap(pthread_mutex_unlock(&manageThreads),
                     "Error on pthread_mutex_unlock in threadStartSearch (MINIMAX)\n");
         }

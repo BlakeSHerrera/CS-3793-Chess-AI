@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     evaluationFunction = valueAndMobility;
     forwardPruneN = 999;
     numThreads = 1;
-    maxSearchDepth = 7;
+    maxSearchDepth = 99;
     mobilityFactor = 0.1;
     timeUseFraction = 0.05;
 
@@ -40,6 +40,9 @@ int main(int argc, char **argv) {
             switch(evaluation) {
             case PIECE_VALUE_EVAL:
                 evaluationFunction = simplePieceValueCount;
+                break;
+            case VALUE_AND_INFLUENCE:
+                evaluationFunction = valueAndInfluence;
                 break;
             case VALUE_AND_MOBILITY:
                 evaluationFunction = valueAndMobility;

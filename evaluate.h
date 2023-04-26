@@ -32,6 +32,15 @@ double simplePieceValueCount(GameState g);
  * Adds a small score for each pseudo-legal move each player can make.
  * Returns this plus the piece value sum.
  * @param state - The current game state.
+ * @return A score based on weighted piece values and influence.
+ */
+double valueAndInfluence(GameState state);
+
+/**
+ * Adds a small score for each legal move each player could make
+ * (if it were their turn to move).
+ * Returns this plus the piece value sum.
+ * @param state - The current game state.
  * @return A score based on weighted piece values and mobility.
  */
 double valueAndMobility(GameState state);

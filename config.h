@@ -43,7 +43,8 @@
 #define TRASPOSITION_TABLES 8
 
 #define PIECE_VALUE_EVAL 0
-#define VALUE_AND_MOBILITY 1
+#define VALUE_AND_INFLUENCE 1
+#define VALUE_AND_MOBILITY 2
 
 extern int searchStrategy, pruning, evaluation, maxSearchDepth,
            forwardPruneN, numThreads;

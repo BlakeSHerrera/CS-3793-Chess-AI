@@ -31,8 +31,8 @@ moveScoreLeaves miniMax(GameState curState, int ply, double alpha, double beta, 
     GameState newState, originalState = curState, tempMove[2];
     Move legalMoves[MAX_MOVES];
     moveScoreLeaves finalMoveInfo, temp;
-    pthread_testcancel();
 
+    pthread_testcancel();
     generateLegalMoves(&curState, legalMoves, &numMoves);
 
     if (numMoves == 0) {
