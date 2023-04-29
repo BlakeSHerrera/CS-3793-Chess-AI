@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
     maxSearchDepth = 99;
     mobilityFactor = 0.1;
     timeUseFraction = 0.05;
+    quiescenceCutoff = 1.0;
 
     #define is(s) !strcmp(argv[i], s)
     for(i=1; i<argc; i++) {
@@ -60,6 +61,8 @@ int main(int argc, char **argv) {
             mobilityFactor = atof(argv[++i]);
         } else if(is("-timeUseFraction")) {
             timeUseFraction = atof(argv[++i]);
+        } else if(is("-quiescenceCutoff")) {
+            quiescenceCutoff = atof(argv[++i]);
         } else {
             fprintf(stderr, "Unknown command line arg: %s\n", argv[i]);
         }

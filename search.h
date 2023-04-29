@@ -34,9 +34,9 @@ Move getRandomMove(GameState state);
  * @param curState - The current state of the game.
  * @param alpha - -100000 intitally. Increases with recursive calls
  * @param beta - 100000 intitally. Decreases with recursive calls
- * @param nullPrune - flag to enable null pruning.
- * @return A moveScorePair containing the best score and best move.
+ * @param prevScore - static evaluation of the preceding position
+ * @return A moveScoreLeaves containing the best score and best move.
  */
-moveScoreLeaves miniMax(GameState curState, int ply, double alpha, double beta, int nullPrune);
+moveScoreLeaves miniMax(GameState curState, int ply, double alpha, double beta, double prevScore);
 
 #endif // SEARCH_H_INCLUDED

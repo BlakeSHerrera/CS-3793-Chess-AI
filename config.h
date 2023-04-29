@@ -48,7 +48,7 @@
 
 extern int searchStrategy, pruning, evaluation, maxSearchDepth,
            forwardPruneN, numThreads;
-extern double mobilityFactor, timeUseFraction;
+extern double mobilityFactor, timeUseFraction, quiescenceCutoff;
 extern double (*evaluationFunction)(GameState);
 
 #endif // CONFIG_H_INCLUDED

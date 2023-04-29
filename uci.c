@@ -50,7 +50,7 @@
 // From config.h
 int searchStrategy, pruning, evaluation, forwardPruneN, numThreads,
     maxSearchDepth;
-double mobilityFactor, timeUseFraction;
+double mobilityFactor, timeUseFraction, quiescenceCutoff;
 double (*evaluationFunction)(GameState);
 
 // UCI specific
@@ -113,6 +113,7 @@ void uciBoot() {
            "option name numThreads type spin default 1 min 1 max 512\n"
            "option name mobilityFactor type double default 0.1 min 0 max 1\n"
            "option name timeUseFraction type double default 0.05 min 0.001 max 1.0\n"
+           "option name quiescenceCutoff type double default 1.0 min 0.001 max 200.0\n"
            "uciok\n", ENGINE_NAME, VERSION, AUTHORS);
 }
 
@@ -136,13 +137,15 @@ void uciSetOption() {
     #define is(s) !strcmp(token, s)
     next();  // "name"
     next();  // option name
-    if(is("searchStrategy")) {
+    if(is("maxSearchDepth")) {
+        next();  // "value"
+        maxSearchDepth = atoi(next());
+    } else if(is("searchStrategy")) {
         next();  // "value"
         searchStrategy = atoi(next());
     } else if(is("pruning")) {
         next();  // "value"
         pruning = atoi(next());
-        printf("set pruning to %d\n", pruning);
     } else if(is("evaluation")) {
         next();  // "value"
         evaluation = atoi(next());
@@ -171,7 +174,12 @@ void uciSetOption() {
     } else if(is("timeUseFraction")) {
         next();  // "value"
         timeUseFraction = atof(next());
-    } // else unknown option - ignore
+    } else if(is("quiescenceCutoff")) {
+        next();  // "value"
+        quiescenceCutoff = atof(next());
+    } else {
+        fprintf(stderr, "Unknown option: %s\n", token);
+    }
     #undef next
     #undef is
 }
@@ -191,7 +199,6 @@ void uciNewGame() {
 void uciPosition() {
     #define next() strtok(NULL, " ")
     char *a, *b, *c, *d, *e, *f;
-    char szFEN[256];
     a = next();
     if(!strcmp(a, "startpos")) {
         state = positionFromFen(START_FEN);
@@ -211,9 +218,6 @@ void uciPosition() {
         state = pushLAN(&state, a);
     }
     #undef next
-
-    positionToFen(state, szFEN);
-    printf("info fen %s\n", szFEN);
 }
 
 void uciStop() {
@@ -344,25 +348,28 @@ void *threadStartSearch(void *params) {
                 "Error on pthread_mutex_unlock in threadStartSearch (RANDOM_MOVES)\n");
         break;
     case MINIMAX:
+    case MINIMAX_QUIESCENCE:
         for(i=0; i<=maxSearchDepth; i++) {
             start = clock();
-            msp = miniMax(state, i, -DBL_MAX, DBL_MAX, pruning & NULL_PRUNING);
+            msp = miniMax(state, i, -INFINITY, INFINITY, evaluationFunction(state));
             seconds = (double)(clock() - start + 1) / CLOCKS_PER_SEC;
             errTrap(pthread_mutex_lock(&manageThreads),
                     "Error on pthread_mutex_lock in threadStartSearch (MINIMAX)\n");
+            if(!i) {
+                msp.move = getRandomMove(state);
+            }
             principalVariation = msp.move;
-            toLAN(msp.move, temp);
-            printf("info depth %d nodes %lu time %d nps %d score cp %d pv %s\n",
-                   i, msp.leaves, (int)seconds / 1000, (int)(msp.leaves / seconds), (int)(msp.score * 100), temp);
+            toLAN(principalVariation, temp);
+            printf("info depth %d nodes %lu time %0.3f nps %d score cp %d pv %s\n",
+                   i, msp.leaves, seconds, (int)(msp.leaves / seconds), (int)(msp.score * 100), temp);
             errTrap(fflush(stdout),
                     "Error in fflush stdout in threadStartSearch\n");
             errTrap(pthread_mutex_unlock(&manageThreads),
                     "Error on pthread_mutex_unlock in threadStartSearch (MINIMAX)\n");
+            if(msp.score == DBL_MAX || msp.score == -DBL_MAX) {
+                break;
+            }
         }
-        break;
-    case MINIMAX_QUIESCENCE:
-        // TODO
-        errTrap(MINIMAX_QUIESCENCE, "Quiescence search not implemented\n");
         break;
     default:
         errTrap(searchStrategy, "Unknown search strategy");

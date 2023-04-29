@@ -11,11 +11,14 @@
 #include "move.h"
 #include "movegen.h"
 #include "config.h"
+#include "debug.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <math.h>
+#include <float.h>
 
 Move getRandomMove(GameState state) {
     int n;
@@ -24,116 +27,100 @@ Move getRandomMove(GameState state) {
     return moveBuffer[rand() % n];
 }
 
-moveScoreLeaves miniMax(GameState curState, int ply, double alpha, double beta, int nullPrune) {
-    double bestScore = getTurn(curState) ? -__DBL_MAX__ : __DBL_MAX__;
-    int numMoves = 0, moveCounter;
-    Move bestMove = -1;
-    GameState newState, originalState = curState, tempMove[2];
-    Move legalMoves[MAX_MOVES];
+moveScoreLeaves miniMax(GameState curState, int ply, double alpha, double beta, double prevScore) {
+    double staticScore;
+    int numMoves, i, j, stop, maxIdx, turn;
+    Move bestMove = -1,
+         secondBestMove = -1,
+         legalMoves[MAX_MOVES],
+         tempMove;
     moveScoreLeaves finalMoveInfo, temp;
 
     pthread_testcancel();
     generateLegalMoves(&curState, legalMoves, &numMoves);
+    staticScore = evaluationFunction(curState);
+    turn = getTurn(curState);
 
     if (numMoves == 0) {
         finalMoveInfo.leaves = 1;
-        if (getTurn(curState) ? wInCheck(curState) : bInCheck(curState)) {
-            finalMoveInfo.score = bestScore;
+        if (turn ? wInCheck(curState) : bInCheck(curState)) {
+            finalMoveInfo.score = turn ? -DBL_MAX : DBL_MAX;
         } else {
             finalMoveInfo.score = 0;
         }
         return finalMoveInfo;
     }
 
-    if (!ply) {
+    if (ply <= 0 && (searchStrategy != MINIMAX_QUIESCENCE ||
+                     fabs(staticScore - prevScore) < quiescenceCutoff)) {
         finalMoveInfo.leaves = 1;
-        finalMoveInfo.score = evaluationFunction(curState);
+        finalMoveInfo.score = staticScore;
         return finalMoveInfo;
     }
 
-    finalMoveInfo.leaves = 0, temp.leaves = 0;
+    finalMoveInfo.leaves = 0;
+    temp.leaves = 0;
 
-    if (nullPrune && (getTurn(curState) ? !wInCheck(curState) : !bInCheck(curState))) {
-        newState = pushMove(&curState, NULL_MOVE);
-        temp = miniMax(newState, ply - 1, alpha, beta, nullPrune);
+    if(pruning & NULL_PRUNING &&
+       (turn ? !wInCheck(curState) : !bInCheck(curState))) {
+        temp = miniMax(pushMove(&curState, NULL_MOVE),
+                       ply - 1, alpha, beta, staticScore);
         finalMoveInfo.leaves += temp.leaves;
-        bestScore = temp.score; // set alpha if white, beta if black ...
         bestMove = NULL_MOVE;
-        if(getTurn(curState)) {
-            alpha = bestScore > alpha ? bestScore : alpha;
+        if(turn) {
+            if(temp.score > alpha) {
+                alpha = temp.score;
+            }
         } else {
-            beta = bestScore < beta ? bestScore : beta;
+            if(temp.score < beta) {
+                beta = temp.score;
+            }
         }
+        // TODO what should happen here if alpha >= beta?
     }
 
-    /* TODO: this code block can be optimized by performing the
-     * ab search on each node as it becomes sorted.
-     */
-    if (pruning & FORWARD_PRUNING) {  // numMoves > forwardPrune
-        // selection sort
-        int stop = forwardPruneN < numMoves ? forwardPruneN : numMoves;
-        for (int i = 0; i < stop; i++) {
-            int max_idx = i;
-            for (int j = i + 1; j < numMoves; j++) {
-                tempMove[0] = pushMove(&curState, legalMoves[j]);
-                tempMove[1] = pushMove(&curState, legalMoves[max_idx]);
-                if (evaluationFunction(tempMove[0]) > evaluationFunction(tempMove[1])) {
-                    max_idx = j;
+    // TODO: optimize by saving pushed state
+    stop = (pruning & FORWARD_PRUNING) && forwardPruneN < numMoves ? forwardPruneN : numMoves;
+    for(i=0; i<stop; i++) {
+        if(pruning & FORWARD_PRUNING) {
+            maxIdx = i;
+            for(j=i+1; j<numMoves; j++) {
+                if(evaluationFunction(pushMove(&curState, legalMoves[j])) >
+                   evaluationFunction(pushMove(&curState, legalMoves[maxIdx]))) {
+                    maxIdx = j;
                 }
             }
-            Move temp = legalMoves[max_idx];
-            legalMoves[max_idx] = legalMoves[i];
-            legalMoves[i] = temp;
+            tempMove = legalMoves[maxIdx];
+            legalMoves[maxIdx] = legalMoves[i];
+            legalMoves[i] = tempMove;
         }
-        numMoves = stop;
-    }
 
-    for (moveCounter = 0; moveCounter < numMoves; moveCounter++) {
-        newState = pushMove(&curState, legalMoves[moveCounter]);
         // get score from recursive call
-        temp = miniMax(newState, ply - 1, alpha, beta, nullPrune);
+        temp = miniMax(pushMove(&curState, legalMoves[i]),
+                       ply - 1, alpha, beta, staticScore);
 
         finalMoveInfo.leaves += temp.leaves;
-        // if other player will be put in check, take this path
-        if (temp.move == -1) {
-            finalMoveInfo.move = legalMoves[moveCounter];
-            finalMoveInfo.score = temp.score;
-            return finalMoveInfo;
-        }
-        if (getTurn(curState) ? temp.score >= bestScore : temp.score <= bestScore) {
-            bestScore = temp.score;
-            bestMove = legalMoves[moveCounter];
+
+        if(turn) {
+            if(temp.score > alpha) {
+                alpha = temp.score;
+                secondBestMove = bestMove;
+                bestMove = legalMoves[i];
+            }
+        } else if(temp.score < beta) {
+            beta = temp.score;
+            secondBestMove = bestMove;
+            bestMove = legalMoves[i];
         }
 
-        // TODO ab pruning
-        if (!(pruning & AB_PRUNING)) {
-            continue;
-        }
-        if (getTurn(curState)) {
-            alpha = alpha > temp.score ? alpha : temp.score;
-        } else {
-            beta = beta < temp.score ? beta : temp.score;
-        }
-
-        if (beta <= alpha) {
+        if ((pruning & AB_PRUNING) && beta <= alpha) {
             finalMoveInfo.move = bestMove;
-            finalMoveInfo.score = getTurn(curState) ? alpha : beta;
+            finalMoveInfo.score = turn ? alpha : beta;
             return finalMoveInfo;
         }
-    }
+     }
 
-    if (bestMove != -1) {
-        finalMoveInfo.move = bestMove;
-        finalMoveInfo.score = bestScore;
-    } else {
-        finalMoveInfo.move = -1;
-        finalMoveInfo.score = getTurn(newState) ? -__DBL_MAX__ : __DBL_MAX__;
-    }
-    // if the null move was the best move, research without null pruning
-    if (NULL_MOVE == finalMoveInfo.move) {
-        temp = miniMax(originalState, ply, alpha, beta, 0);
-        temp.leaves += finalMoveInfo.leaves;
-        return temp;
-    }
+    finalMoveInfo.move = NULL_MOVE == bestMove ? secondBestMove : bestMove;
+    finalMoveInfo.score = turn ? alpha : beta;
     return finalMoveInfo;
 }
