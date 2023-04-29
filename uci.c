@@ -65,16 +65,17 @@ static pthread_mutex_t manageThreads;
 static pthread_cond_t readyToSubmit;
 
 void uciCommunicate() {
+    #define NUM_PAIRS 12
     typedef struct pair {
         char szCommand[20];
         void (*function)();
     } pair;
-    pair pairs[11] = {{"uci", &uciBoot}, {"debug", &uciDebug},
+    pair pairs[NUM_PAIRS] = {{"uci", &uciBoot}, {"debug", &uciDebug},
         {"isready", &uciIsReady}, {"setoption", &uciSetOption},
         {"register", &uciRegister}, {"ucinewgame", &uciNewGame},
         {"position", &uciPosition}, {"stop", &uciStop},
         {"ponderhit", &uciPonderHit}, {"quit", &uciQuit},
-        {"go", &uciGo}
+        {"go", &uciGo}, {"showboard", &uciShowBoard}
     };
     int i;
 
@@ -92,7 +93,7 @@ void uciCommunicate() {
         szBuffer[strcspn(szBuffer, "\n")] = '\0';
         errTrap(strtok(szBuffer, " ") == NULL,
                 "Error on strtok in uciCommunicate\n");
-        for(i=0; i<11; i++) {
+        for(i=0; i<NUM_PAIRS; i++) {
             if(!strcmp(szBuffer, pairs[i].szCommand)) {
                 (*pairs[i].function)();
                 break;
@@ -101,6 +102,7 @@ void uciCommunicate() {
         errTrap(fflush(stdout),
                 "Error on fflush in uciCommunicate\n");
     }
+    #undef NUM_PAIRS
 }
 
 void uciBoot() {
@@ -379,4 +381,8 @@ void *threadStartSearch(void *params) {
     errTrap(pthread_cond_broadcast(&readyToSubmit),
             "Error on pthread_cond_broadcast in threadStartSearch\n");
     return NULL;
+}
+
+void uciShowBoard() {
+    printGameState(state);
 }

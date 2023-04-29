@@ -111,9 +111,9 @@ void *timeKeepStart(void *params);
 void *threadStartSearch(void *params);
 
 /**
- * submitMove coordinates access for submitting a move in the event
- * that multiple threads try to submit a move.
+ * uciShowBoard shows the current board on the command line.
+ * @see debug.h - printGameState
  */
-void submitMove();
+void uciShowBoard();
 
 #endif // UCI_H_INCLUDED

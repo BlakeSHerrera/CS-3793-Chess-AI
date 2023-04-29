@@ -127,7 +127,7 @@ GameState pushLAN(GameState *state, const char *szLAN) {
     source = szLAN[0] - 'a' + 8 * (szLAN[1] - '1');
     destination = szLAN[2] - 'a' + 8 * (szLAN[3] - '1');
     movedPiece = getPieceFromSquare(*state, source);
-    isEP = destination == getEPTarget(*state) && (
+    isEP = hasEPTarget(*state) && destination == getEPTarget(*state) && (
             movedPiece == W_PAWN || movedPiece == B_PAWN);
     capturedPiece = isEP ? W_PAWN + 6 * getTurn(*state) :
         getPieceFromSquare(*state, destination);
