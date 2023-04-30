@@ -47,7 +47,7 @@
 #define VALUE_AND_MOBILITY 2
 
 extern int searchStrategy, pruning, evaluation, maxSearchDepth,
-           forwardPruneN, numThreads;
+           forwardPruneN, quiescenceMaxDepth, numThreads;
 extern double mobilityFactor, timeUseFraction, quiescenceCutoff;
 extern double (*evaluationFunction)(GameState);
 

@@ -49,7 +49,7 @@
 
 // From config.h
 int searchStrategy, pruning, evaluation, forwardPruneN, numThreads,
-    maxSearchDepth;
+    maxSearchDepth, quiescenceMaxDepth;
 double mobilityFactor, timeUseFraction, quiescenceCutoff;
 double (*evaluationFunction)(GameState);
 
@@ -135,50 +135,45 @@ void uciIsReady() {
 
 void uciSetOption() {
     char *token;
+    double (*evaluationFunctions[3])(GameState) = {
+        simplePieceValueCount, valueAndInfluence, valueAndMobility
+    };
+
     #define next() token = strtok(NULL, " ")
     #define is(s) !strcmp(token, s)
     next();  // "name"
     next();  // option name
+    printf("%s\n", token);
     if(is("maxSearchDepth")) {
         next();  // "value"
         maxSearchDepth = atoi(next());
     } else if(is("searchStrategy")) {
-        next();  // "value"
+        next();
         searchStrategy = atoi(next());
     } else if(is("pruning")) {
-        next();  // "value"
+        next();
         pruning = atoi(next());
     } else if(is("evaluation")) {
-        next();  // "value"
-        evaluation = atoi(next());
-        switch(evaluation) {
-        case PIECE_VALUE_EVAL:
-            evaluationFunction = simplePieceValueCount;
-            break;
-        case VALUE_AND_INFLUENCE:
-            evaluationFunction = valueAndInfluence;
-            break;
-        case VALUE_AND_MOBILITY:
-            evaluationFunction = valueAndMobility;
-            break;
-        default:
-            break;
-        }
+        next();
+        evaluationFunction = evaluationFunctions[atoi(next())];
     } else if(is("numThreads")) {
-        next();  // "value"
+        next();
         numThreads = atoi(next());
     } else if(is("forwardPruneN")) {
-        next();  // "value"
+        next();
         forwardPruneN = atoi(next());
     } else if(is("mobilityFactor")) {
-        next();  // "value"
+        next();
         mobilityFactor = atof(next());
     } else if(is("timeUseFraction")) {
-        next();  // "value"
+        next();
         timeUseFraction = atof(next());
     } else if(is("quiescenceCutoff")) {
-        next();  // "value"
+        next();
         quiescenceCutoff = atof(next());
+    } else if(is("quiescenceMaxDepth")) {
+        next();
+        quiescenceMaxDepth = atoi(next());
     } else {
         fprintf(stderr, "Unknown option: %s\n", token);
     }

@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
     mobilityFactor = 0.1;
     timeUseFraction = 0.05;
     quiescenceCutoff = 1.0;
+    quiescenceMaxDepth = 3;
 
     #define is(s) !strcmp(argv[i], s)
     for(i=1; i<argc; i++) {
@@ -63,6 +64,8 @@ int main(int argc, char **argv) {
             timeUseFraction = atof(argv[++i]);
         } else if(is("-quiescenceCutoff")) {
             quiescenceCutoff = atof(argv[++i]);
+        } else if(is("-quiescenceMaxDepth")) {
+            quiescenceMaxDepth = atoi(argv[++i]);
         } else {
             fprintf(stderr, "Unknown command line arg: %s\n", argv[i]);
         }

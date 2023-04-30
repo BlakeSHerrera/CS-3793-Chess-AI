@@ -28,7 +28,7 @@ Move getRandomMove(GameState state) {
 }
 
 moveScoreLeaves miniMax(GameState curState, int ply, double alpha, double beta, double prevScore) {
-    double staticScore;
+    double staticScore, bestScore, jScore;
     int numMoves, i, j, stop, maxIdx, turn;
     Move bestMove = -1,
          secondBestMove = -1,
@@ -41,7 +41,7 @@ moveScoreLeaves miniMax(GameState curState, int ply, double alpha, double beta, 
     staticScore = evaluationFunction(curState);
     turn = getTurn(curState);
 
-    if (numMoves == 0) {
+    if(numMoves == 0) {
         finalMoveInfo.leaves = 1;
         if (turn ? wInCheck(curState) : bInCheck(curState)) {
             finalMoveInfo.score = turn ? -DBL_MAX : DBL_MAX;
@@ -51,8 +51,9 @@ moveScoreLeaves miniMax(GameState curState, int ply, double alpha, double beta, 
         return finalMoveInfo;
     }
 
-    if (ply <= 0 && (searchStrategy != MINIMAX_QUIESCENCE ||
-                     fabs(staticScore - prevScore) < quiescenceCutoff)) {
+    if(ply <= -quiescenceMaxDepth ||
+       (ply <= 0 && (searchStrategy != MINIMAX_QUIESCENCE ||
+            fabs(staticScore - prevScore) < quiescenceCutoff))) {
         finalMoveInfo.leaves = 1;
         finalMoveInfo.score = staticScore;
         return finalMoveInfo;
@@ -71,10 +72,8 @@ moveScoreLeaves miniMax(GameState curState, int ply, double alpha, double beta, 
             if(temp.score > alpha) {
                 alpha = temp.score;
             }
-        } else {
-            if(temp.score < beta) {
-                beta = temp.score;
-            }
+        } else if(temp.score < beta) {
+            beta = temp.score;
         }
         // TODO what should happen here if alpha >= beta?
     }
@@ -84,10 +83,12 @@ moveScoreLeaves miniMax(GameState curState, int ply, double alpha, double beta, 
     for(i=0; i<stop; i++) {
         if(pruning & FORWARD_PRUNING) {
             maxIdx = i;
+            bestScore = evaluationFunction(pushMove(&curState, legalMoves[maxIdx]));
             for(j=i+1; j<numMoves; j++) {
-                if(evaluationFunction(pushMove(&curState, legalMoves[j])) >
-                   evaluationFunction(pushMove(&curState, legalMoves[maxIdx]))) {
+                jScore = evaluationFunction(pushMove(&curState, legalMoves[j]));
+                if(turn ? jScore > bestScore : jScore < bestScore) {
                     maxIdx = j;
+                    bestScore = jScore;
                 }
             }
             tempMove = legalMoves[maxIdx];
@@ -113,7 +114,7 @@ moveScoreLeaves miniMax(GameState curState, int ply, double alpha, double beta, 
             bestMove = legalMoves[i];
         }
 
-        if ((pruning & AB_PRUNING) && beta <= alpha) {
+        if((pruning & AB_PRUNING) && beta <= alpha) {
             finalMoveInfo.move = bestMove;
             finalMoveInfo.score = turn ? alpha : beta;
             return finalMoveInfo;
