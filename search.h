@@ -32,8 +32,8 @@ Move getRandomMove(GameState state);
 /**
  * Finds the best move from a game state.
  * @param curState - The current state of the game.
- * @param alpha - -100000 intitally. Increases with recursive calls
- * @param beta - 100000 intitally. Decreases with recursive calls
+ * @param alpha - -INFINITY initially. Increases with recursive calls
+ * @param beta - INFINITY initially. Decreases with recursive calls
  * @param prevScore - static evaluation of the preceding position
  * @return A moveScoreLeaves containing the best score and best move.
  */

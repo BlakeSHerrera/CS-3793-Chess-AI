@@ -13,24 +13,16 @@
 #include "movegen.h"
 #include "debug.h"
 
-#include <stdio.h>
-
-const double simplePieceValues[NUM_PIECES] = {
-     1.0,  3.0,  3.0,  5.0,  9.0,  200.0,
-    -1.0, -3.0, -3.0, -5.0, -9.0, -200.0
-};
-
-double pieceValueScore(GameState state, const double pieceValues[NUM_PIECES]) {
+void setMaterialScore(GameState *state) {
     int i;
-    double score = 0;
+    state->material = 0;
     for(i=0; i<NUM_PIECES; i++) {
-        score += sumBits(state.bb[i]) * pieceValues[i];
+        state->material += sumBits(state->bb[i]) * pieceValues[i];
     }
-    return score;
 }
 
-double simplePieceValueCount(GameState g) {
-    return pieceValueScore(g, simplePieceValues);
+double materialEval(GameState state) {
+    return state.material;
 }
 
 double valueAndInfluence(GameState state) {
@@ -51,10 +43,8 @@ double valueAndInfluence(GameState state) {
     } else {
         mobility = wMoves - bMoves * INITIATIVE;
     }
-    return simplePieceValueCount(state) + mobility * mobilityFactor;
+    return state.material + mobility * mobilityFactor;
     #undef INITIATIVE
-
-    //return (wMoves - bMoves) * mobilityFactor + simplePieceValueCount(state);
 }
 
 double valueAndMobility(GameState state) {
@@ -74,8 +64,6 @@ double valueAndMobility(GameState state) {
     } else {
         mobility = wMoves - bMoves * INITIATIVE;
     }
-    return simplePieceValueCount(state) + mobility * mobilityFactor;
+    return state.material + mobility * mobilityFactor;
     #undef INITIATIVE
-
-    //return (wMoves - bMoves) * mobilityFactor + simplePieceValueCount(state);
 }

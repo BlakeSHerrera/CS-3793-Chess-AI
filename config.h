@@ -31,6 +31,7 @@
 #define CONFIG_H_INCLUDED
 
 #include "position.h"
+#include "evaluate.h"
 
 #define RANDOM_MOVES 0
 #define MINIMAX 1
@@ -42,13 +43,16 @@
 #define FORWARD_PRUNING 4
 #define TRASPOSITION_TABLES 8
 
-#define PIECE_VALUE_EVAL 0
-#define VALUE_AND_INFLUENCE 1
-#define VALUE_AND_MOBILITY 2
+#define NUM_EVALUATION_FUNCS 3
+#define MATERIAL_EVAL 0
+#define MATERIAL_AND_INFLUENCE 1
+#define MATERIAL_AND_MOBILITY 2
 
 extern int searchStrategy, pruning, evaluation, maxSearchDepth,
            forwardPruneN, quiescenceMaxDepth, numThreads;
-extern double mobilityFactor, timeUseFraction, quiescenceCutoff;
+extern double pieceValues[NUM_PIECES + 1], mobilityFactor, timeUseFraction,
+              quiescenceCutoff;
 extern double (*evaluationFunction)(GameState);
+extern double (*evaluationFunctions[NUM_EVALUATION_FUNCS])(GameState);
 
 #endif // CONFIG_H_INCLUDED

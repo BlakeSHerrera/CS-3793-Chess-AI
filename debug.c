@@ -140,6 +140,7 @@ void printGameState(GameState state) {
     printBitboard(state.bb);
     positionToFen(state, szFen);
     printf("%s\n", szFen);
+    printf("Material: %f\n\n", state.material);
 }
 
 void printMove(Move m) {
@@ -532,8 +533,8 @@ perftResults _performanceTest(GameState state, int depth) {
         accumulator.nodes = 1;
         return accumulator;
     }
+
     generateLegalMoves(&state, moveBuffer, &numMoves);
-    positionToFen(state, buffer);
     for(i=0; i<numMoves; i++) {
         if(depth == 1) {
             if(isEP(moveBuffer[i])) {
