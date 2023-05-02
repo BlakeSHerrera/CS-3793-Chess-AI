@@ -6,16 +6,17 @@
  * @see position.h
  */
 
- #include "position.h"
- #include "piece.h"
- #include "bitboard.h"
- #include "square.h"
- #include "movegen.h"
- #include "magic.h"
+#include "position.h"
+#include "piece.h"
+#include "bitboard.h"
+#include "square.h"
+#include "movegen.h"
+#include "magic.h"
+#include "evaluate.h"
 
- #include <stdlib.h>
- #include <string.h>
- #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 GameState positionFromFen(const char *szFen) {
     const char *a, *b, *c, *d, *e;
@@ -92,6 +93,10 @@ GameState positionFromFenParts(const char *szBoard, const char *szTurn,
     // Set half and full move counters
     setHalfMoveCounter(state, atoi(szHalfMoveCounter));
     setFullMoveCounter(state, atoi(szFullMoveCounter));
+
+    // Set material
+    setMaterialScore(&state);
+
     return state;
 }
 

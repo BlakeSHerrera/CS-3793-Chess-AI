@@ -5,13 +5,13 @@
 	"square.h"
 	"magic.h"
 
-1682368661 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\error.c
+1682824518 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\error.c
 	"error.h"
 	<errno.h>
 	<stdio.h>
 	<stdlib.h>
 
-1682810221 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.c
+1682927476 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
@@ -36,9 +36,9 @@
 	<windows.h>
 	<time.h>
 
-1682744146 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.h
+1682824518 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\uci.h
 
-1682810012 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\main.c
+1682927075 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\main.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -48,8 +48,9 @@
 	"bitboard.h"
 	"movegen.h"
 	"evaluate.h"
+	"debug.h"
 
-1682274136 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\movegen.c
+1682924828 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\movegen.c
 	"movegen.h"
 	"square.h"
 	"bitboard.h"
@@ -60,13 +61,13 @@
 	<stdlib.h>
 	<stdio.h>
 
-1682316478 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\movegen.h
+1682824518 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\movegen.h
 	"move.h"
 	"bitboard.h"
 	"square.h"
 	"position.h"
 
-1682313442 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\move.h
+1682824518 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\move.h
 	"square.h"
 	"piece.h"
 	"position.h"
@@ -79,23 +80,24 @@
 	"piece.h"
 	"square.h"
 
-1681535206 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.c
+1682830805 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.c
 	"position.h"
 	"piece.h"
 	"bitboard.h"
 	"square.h"
 	"movegen.h"
 	"magic.h"
+	"evaluate.h"
 	<stdlib.h>
 	<string.h>
 	<stdio.h>
 
-1678241279 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.h
+1682830805 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\position.h
 	"bitboard.h"
 	"piece.h"
 	"square.h"
 
-1682314190 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\debug.c
+1682924859 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\debug.c
 	"bitboard.h"
 	"debug.h"
 	"move.h"
@@ -128,9 +130,10 @@
 	"bitboard.h"
 	"movegen.h"
 
-1682745711 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\move.c
+1682907797 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\move.c
 	"move.h"
 	"piece.h"
+	"config.h"
 	<math.h>
 	<stdio.h>
 
@@ -140,10 +143,11 @@
 1678241279 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\square.c
 	"square.h"
 
-1682810012 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\config.h
+1682831813 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\config.h
 	"position.h"
+	"evaluate.h"
 
-1682811742 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\search.c
+1682824518 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\search.c
 	"search.h"
 	"bitboard.h"
 	"move.h"
@@ -157,11 +161,11 @@
 	<math.h>
 	<float.h>
 
-1682711141 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\search.h
+1682830806 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\search.h
 	"move.h"
 	"position.h"
 
-1682573486 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\evaluate.c
+1682830973 source:c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\evaluate.c
 	"evaluate.h"
 	"piece.h"
 	"position.h"
@@ -169,11 +173,10 @@
 	"move.h"
 	"movegen.h"
 	"debug.h"
-	<stdio.h>
 
-1682412240 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\evaluate.h
+1682830806 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\evaluate.h
 	"piece.h"
 	"position.h"
 
-1682368672 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\error.h
+1682824518 c:\users\blake\coding\workspace\github repos\cs-3793-chess-ai\error.h
 

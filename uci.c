@@ -50,8 +50,10 @@
 // From config.h
 int searchStrategy, pruning, evaluation, forwardPruneN, numThreads,
     maxSearchDepth, quiescenceMaxDepth;
-double mobilityFactor, timeUseFraction, quiescenceCutoff;
+double pieceValues[NUM_PIECES + 1], mobilityFactor, timeUseFraction,
+       quiescenceCutoff;
 double (*evaluationFunction)(GameState);
+double (*evaluationFunctions[3])(GameState);
 
 // UCI specific
 static char szBuffer[6000 * 6];
@@ -109,13 +111,14 @@ void uciBoot() {
     printf("id name %s v%s\nid author %s\n\n"
            "option name searchStrategy type spin default 1 min 0 max 2\n"
            "option name pruning type spin default 1 min 0 max 7\n"
-           "option name evaluation type spin default 2 min 0 max 2\n"
+           "option name evaluation type spin default 0 min 0 max 2\n"
            "option name maxSearchDepth type spin default 99 min 1 max 99\n"
            "option name forwardPruneN type spin default 999 min 1 max 999\n"
            "option name numThreads type spin default 1 min 1 max 512\n"
            "option name mobilityFactor type double default 0.1 min 0 max 1\n"
            "option name timeUseFraction type double default 0.05 min 0.001 max 1.0\n"
            "option name quiescenceCutoff type double default 1.0 min 0.001 max 200.0\n"
+           "option name pieceValues type double[12] default 1 3 3 5 9"
            "uciok\n", ENGINE_NAME, VERSION, AUTHORS);
 }
 
@@ -135,49 +138,57 @@ void uciIsReady() {
 
 void uciSetOption() {
     char *token;
-    double (*evaluationFunctions[3])(GameState) = {
-        simplePieceValueCount, valueAndInfluence, valueAndMobility
-    };
+    int i;
 
     #define next() token = strtok(NULL, " ")
+    #define nextInt() atoi(next())
+    #define nextFloat() atof(next())
     #define is(s) !strcmp(token, s)
     next();  // "name"
     next();  // option name
     printf("%s\n", token);
     if(is("maxSearchDepth")) {
         next();  // "value"
-        maxSearchDepth = atoi(next());
+        maxSearchDepth = nextInt();
     } else if(is("searchStrategy")) {
         next();
-        searchStrategy = atoi(next());
+        searchStrategy = nextInt();
     } else if(is("pruning")) {
         next();
-        pruning = atoi(next());
+        pruning = nextInt();
     } else if(is("evaluation")) {
         next();
-        evaluationFunction = evaluationFunctions[atoi(next())];
+        evaluationFunction = evaluationFunctions[nextInt()];
     } else if(is("numThreads")) {
         next();
-        numThreads = atoi(next());
+        numThreads = nextInt();
     } else if(is("forwardPruneN")) {
         next();
-        forwardPruneN = atoi(next());
+        forwardPruneN = nextInt();
     } else if(is("mobilityFactor")) {
         next();
-        mobilityFactor = atof(next());
+        mobilityFactor = nextFloat();
     } else if(is("timeUseFraction")) {
         next();
-        timeUseFraction = atof(next());
+        timeUseFraction = nextFloat();
     } else if(is("quiescenceCutoff")) {
         next();
-        quiescenceCutoff = atof(next());
+        quiescenceCutoff = nextFloat();
     } else if(is("quiescenceMaxDepth")) {
         next();
-        quiescenceMaxDepth = atoi(next());
+        quiescenceMaxDepth = nextInt();
+    } else if(is("pieceValues")) {
+        next();
+        for(i=0; i<5; i++) {
+            pieceValues[i] = nextFloat();
+            pieceValues[i+6] = -pieceValues[i];
+        }
     } else {
         fprintf(stderr, "Unknown option: %s\n", token);
     }
     #undef next
+    #undef nextInt
+    #undef nextFloat
     #undef is
 }
 
@@ -333,8 +344,9 @@ void *threadStartSearch(void *params) {
     int i;
     moveScoreLeaves msp;
     char temp[6];
-    clock_t start;
+    clock_t start = clock();
     double seconds;
+    unsigned long nodesAccumulator = 0L;
 
     switch(searchStrategy) {
     case RANDOM_MOVES:
@@ -347,9 +359,9 @@ void *threadStartSearch(void *params) {
     case MINIMAX:
     case MINIMAX_QUIESCENCE:
         for(i=0; i<=maxSearchDepth; i++) {
-            start = clock();
             msp = miniMax(state, i, -INFINITY, INFINITY, evaluationFunction(state));
             seconds = (double)(clock() - start + 1) / CLOCKS_PER_SEC;
+            nodesAccumulator += msp.leaves;
             errTrap(pthread_mutex_lock(&manageThreads),
                     "Error on pthread_mutex_lock in threadStartSearch (MINIMAX)\n");
             if(!i) {
@@ -358,7 +370,7 @@ void *threadStartSearch(void *params) {
             principalVariation = msp.move;
             toLAN(principalVariation, temp);
             printf("info depth %d nodes %lu time %0.3f nps %d score cp %d pv %s\n",
-                   i, msp.leaves, seconds, (int)(msp.leaves / seconds), (int)(msp.score * 100), temp);
+                   i, nodesAccumulator, seconds, (int)(nodesAccumulator / seconds), (int)(msp.score * 100), temp);
             errTrap(fflush(stdout),
                     "Error in fflush stdout in threadStartSearch\n");
             errTrap(pthread_mutex_unlock(&manageThreads),

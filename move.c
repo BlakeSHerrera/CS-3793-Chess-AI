@@ -8,6 +8,7 @@
 
 #include "move.h"
 #include "piece.h"
+#include "config.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -49,6 +50,7 @@ GameState pushMoveVerbose(GameState *state, Square source, Square destination,
     if(promotion != NUM_PIECES) {
         nextState.bb[movedPiece] ^= 1ULL << destination;
         nextState.bb[promotion] ^= 1ULL << destination;
+        nextState.material += pieceValues[promotion] - pieceValues[movedPiece];
     }
 
     // Remove captured piece + check for EP
@@ -58,6 +60,8 @@ GameState pushMoveVerbose(GameState *state, Square source, Square destination,
         nextState.bb[capturedPiece] &= ~(1ULL << (destination + 8 + getTurn(*state) * -16));
         nextState.bb[BLOCKERS] &= ~(1ULL << (destination + 8 + getTurn(*state) * -16));
     }
+    // Incrementally update material count
+    nextState.material -= pieceValues[capturedPiece];
 
     // Check for castling, move rook
     if(isCastling) {

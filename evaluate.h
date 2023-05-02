@@ -13,24 +13,21 @@
 #include "position.h"
 
 /**
- * Returns the dot product between the count of pieces and their
- * respective value weights - the weighted sum of pieces.
- * @param state - The current game state.
- * @param pieceValues - An array of piece values.
- * @return The weighted sum of pieces.
+ * Sets the material score of the given state.
+ * @param state - Pointer to the current game state.
  */
-double pieceValueScore(GameState state, const double pieceValues[NUM_PIECES]);
+void setMaterialScore(GameState *state);
 
 /**
- * Counts all the pieces for a player.
- * @param g - the game state holding info about the game board.
- * @return A the total count of all the pieces for both players.
+ * Returns a state's material count.
+ * @param state - The current state of the board.
+ * @return The state's material count.
  */
-double simplePieceValueCount(GameState g);
+double materialEval(GameState state);
 
 /**
  * Adds a small score for each pseudo-legal move each player can make.
- * Returns this plus the piece value sum.
+ * Returns this plus the material value.
  * @param state - The current game state.
  * @return A score based on weighted piece values and influence.
  */
@@ -39,7 +36,7 @@ double valueAndInfluence(GameState state);
 /**
  * Adds a small score for each legal move each player could make
  * (if it were their turn to move).
- * Returns this plus the piece value sum.
+ * Returns this plus the material value.
  * @param state - The current game state.
  * @return A score based on weighted piece values and mobility.
  */

@@ -203,57 +203,10 @@ void generatePseudoLegalMoves(GameState *state, Move moveBuffer[MAX_MOVES], int 
         } \
         setCapturedPiece(nextMove, j)
 
-    repeat(B_ROOK - NUM_PIECES / 2 * turn) {
-        squareSource = LSB(piecesMask) - 1;
-        bmSource = 1ULL << squareSource;
-        movesMask = hashRook(squareSource, blockers);
-        setNextMoves(B_ROOK - NUM_PIECES / 2 * turn);
-    }
-
-    repeat(B_KNIGHT - NUM_PIECES / 2 * turn) {
-        squareSource = LSB(piecesMask) - 1;
-        bmSource = 1ULL << squareSource;
-        movesMask = KNIGHT_TABLE[squareSource];
-        setNextMoves(B_KNIGHT - NUM_PIECES / 2 * turn);
-    }
-
-    repeat(B_BISHOP - NUM_PIECES / 2 * turn) {
-        squareSource = LSB(piecesMask) - 1;
-        bmSource = 1ULL << squareSource;
-        movesMask = hashBishop(squareSource, blockers);
-        setNextMoves(B_BISHOP - NUM_PIECES / 2 * turn);
-    }
-
-    repeat(B_QUEEN - NUM_PIECES / 2 * turn) {
-        squareSource = LSB(piecesMask) - 1;
-        bmSource = 1ULL << squareSource;
-        movesMask = hashRook(squareSource, blockers);
-        movesMask |= hashBishop(squareSource, blockers);
-        setNextMoves(B_QUEEN - NUM_PIECES / 2 * turn);
-    }
-
     if(turn) {  // White's turn
-        repeat(W_KING) {
-            squareSource = LSB(piecesMask) - 1;
-            bmSource = 1ULL << squareSource;
-            movesMask = KING_TABLE[squareSource];
-            setNextMoves(W_KING);
-
-            setCapturedPiece(nextMove, NUM_PIECES);  // No capture
-            if(squareSource == E1) {
-                setIsCastling(nextMove, 1);
-                if(!(W_CASTLE_K & blockers) && wCanCastleK(*state)) {
-                    setDestination(nextMove, G1);
-                    moveBuffer[i++] = nextMove;
-                }
-                if(!(W_CASTLE_Q & blockers) && wCanCastleQ(*state)) {
-                    setDestination(nextMove, C1);
-                    moveBuffer[i++] = nextMove;
-                }
-                setIsCastling(nextMove, 0);
-            }
-        }
-
+        /* Pawn moves generated first to facilitate promotions
+         * This is a hacky workaround for piece-square tables
+         */
         repeat(W_PAWN) {
             squareSource = LSB(piecesMask) - 1;
             bmSource = 1ULL << squareSource;
@@ -300,28 +253,31 @@ void generatePseudoLegalMoves(GameState *state, Move moveBuffer[MAX_MOVES], int 
                 }
             }
         }
-    } else {
-        repeat(B_KING) {
+
+        repeat(W_KING) {
             squareSource = LSB(piecesMask) - 1;
             bmSource = 1ULL << squareSource;
             movesMask = KING_TABLE[squareSource];
-            setNextMoves(B_KING);
-            if(squareSource == E8) {
+            setNextMoves(W_KING);
+
+            setCapturedPiece(nextMove, NUM_PIECES);  // No capture
+            if(squareSource == E1) {
                 setIsCastling(nextMove, 1);
-                if(!(B_CASTLE_K & blockers) && bCanCastleK(*state)) {
-                    setDestination(nextMove, G8);
-                    setCapturedPiece(nextMove, NUM_PIECES);
+                if(!(W_CASTLE_K & blockers) && wCanCastleK(*state)) {
+                    setDestination(nextMove, G1);
                     moveBuffer[i++] = nextMove;
                 }
-                if(!(B_CASTLE_Q & blockers) && bCanCastleQ(*state)) {
-                    setDestination(nextMove, C8);
-                    setCapturedPiece(nextMove, NUM_PIECES);
+                if(!(W_CASTLE_Q & blockers) && wCanCastleQ(*state)) {
+                    setDestination(nextMove, C1);
                     moveBuffer[i++] = nextMove;
                 }
                 setIsCastling(nextMove, 0);
             }
         }
-
+    } else {
+        /* Pawn moves generated first to facilitate promotions
+         * This is a hacky workaround for piece-square tables
+         */
         repeat(B_PAWN) {
             squareSource = LSB(piecesMask) - 1;
             bmSource = 1ULL << squareSource;
@@ -368,6 +324,56 @@ void generatePseudoLegalMoves(GameState *state, Move moveBuffer[MAX_MOVES], int 
                 }
             }
         }
+
+        repeat(B_KING) {
+            squareSource = LSB(piecesMask) - 1;
+            bmSource = 1ULL << squareSource;
+            movesMask = KING_TABLE[squareSource];
+            setNextMoves(B_KING);
+            if(squareSource == E8) {
+                setIsCastling(nextMove, 1);
+                if(!(B_CASTLE_K & blockers) && bCanCastleK(*state)) {
+                    setDestination(nextMove, G8);
+                    setCapturedPiece(nextMove, NUM_PIECES);
+                    moveBuffer[i++] = nextMove;
+                }
+                if(!(B_CASTLE_Q & blockers) && bCanCastleQ(*state)) {
+                    setDestination(nextMove, C8);
+                    setCapturedPiece(nextMove, NUM_PIECES);
+                    moveBuffer[i++] = nextMove;
+                }
+                setIsCastling(nextMove, 0);
+            }
+        }
+    }
+
+    repeat(B_ROOK - NUM_PIECES / 2 * turn) {
+        squareSource = LSB(piecesMask) - 1;
+        bmSource = 1ULL << squareSource;
+        movesMask = hashRook(squareSource, blockers);
+        setNextMoves(B_ROOK - NUM_PIECES / 2 * turn);
+    }
+
+    repeat(B_KNIGHT - NUM_PIECES / 2 * turn) {
+        squareSource = LSB(piecesMask) - 1;
+        bmSource = 1ULL << squareSource;
+        movesMask = KNIGHT_TABLE[squareSource];
+        setNextMoves(B_KNIGHT - NUM_PIECES / 2 * turn);
+    }
+
+    repeat(B_BISHOP - NUM_PIECES / 2 * turn) {
+        squareSource = LSB(piecesMask) - 1;
+        bmSource = 1ULL << squareSource;
+        movesMask = hashBishop(squareSource, blockers);
+        setNextMoves(B_BISHOP - NUM_PIECES / 2 * turn);
+    }
+
+    repeat(B_QUEEN - NUM_PIECES / 2 * turn) {
+        squareSource = LSB(piecesMask) - 1;
+        bmSource = 1ULL << squareSource;
+        movesMask = hashRook(squareSource, blockers);
+        movesMask |= hashBishop(squareSource, blockers);
+        setNextMoves(B_QUEEN - NUM_PIECES / 2 * turn);
     }
 
     #undef repeat

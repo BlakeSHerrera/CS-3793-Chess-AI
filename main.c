@@ -16,13 +16,21 @@
 #include "bitboard.h"
 #include "movegen.h"
 #include "evaluate.h"
+#include "debug.h"
 
 int main(int argc, char **argv) {
     int i;
+    const double defaultPieceValues[13] = {
+        1, 3, 3, 5, 9, 999, -1, -3, -3, -5, -9, -999, 0
+    };
+    double (*evaluationFuncs[NUM_EVALUATION_FUNCS])(GameState) = {
+        materialEval, valueAndInfluence, valueAndMobility
+    };
+
     searchStrategy = MINIMAX;
     pruning = AB_PRUNING;
-    evaluation = VALUE_AND_MOBILITY;
-    evaluationFunction = valueAndMobility;
+    evaluation = MATERIAL_EVAL;
+    evaluationFunction = materialEval;
     forwardPruneN = 999;
     numThreads = 1;
     maxSearchDepth = 99;
@@ -30,6 +38,12 @@ int main(int argc, char **argv) {
     timeUseFraction = 0.05;
     quiescenceCutoff = 1.0;
     quiescenceMaxDepth = 3;
+    for(i=0; i<NUM_PIECES+1; i++) {
+        pieceValues[i] = defaultPieceValues[i];
+    }
+    for(i=0; i<NUM_EVALUATION_FUNCS; i++) {
+        evaluationFunctions[i] = evaluationFuncs[i];
+    }
 
     #define is(s) !strcmp(argv[i], s)
     for(i=1; i<argc; i++) {
@@ -40,13 +54,13 @@ int main(int argc, char **argv) {
         } else if(is("-evaluation")) {
             evaluation = atoi(argv[++i]);
             switch(evaluation) {
-            case PIECE_VALUE_EVAL:
-                evaluationFunction = simplePieceValueCount;
+            case MATERIAL_EVAL:
+                evaluationFunction = materialEval;
                 break;
-            case VALUE_AND_INFLUENCE:
+            case MATERIAL_AND_INFLUENCE:
                 evaluationFunction = valueAndInfluence;
                 break;
-            case VALUE_AND_MOBILITY:
+            case MATERIAL_AND_MOBILITY:
                 evaluationFunction = valueAndMobility;
                 break;
             default:
@@ -66,6 +80,8 @@ int main(int argc, char **argv) {
             quiescenceCutoff = atof(argv[++i]);
         } else if(is("-quiescenceMaxDepth")) {
             quiescenceMaxDepth = atoi(argv[++i]);
+        } else if(is("-pieceValues")) {
+
         } else {
             fprintf(stderr, "Unknown command line arg: %s\n", argv[i]);
         }
@@ -76,6 +92,7 @@ int main(int argc, char **argv) {
     bitboardInit();
     movegenInit();
     //findMagics();
+
     uciCommunicate();
     return 0;
 }

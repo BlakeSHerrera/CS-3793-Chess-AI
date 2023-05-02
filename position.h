@@ -58,11 +58,13 @@
  * Bits 6-11: ep target square (0-63)
  * Bits 12-18: Half move counter (only up to 50 is needed)
  * Bits 19-31: Full move counter (can hold theoretical max no. of moves)
+ * The material value is updated incrementally to save on computations.
  */
 typedef struct GameState {
     bitmask bb[NUM_PIECES + 1]; // Last index for blockers
     struct GameState *prev;
     int fenInfo;
+    double material;
 } GameState;
 
 /**
